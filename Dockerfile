@@ -1,4 +1,8 @@
 FROM python:3.13-slim
+LABEL io.modelcontextprotocol.server.name="io.github.soheil1lotfi/swiss-grounding-mcp" \
+      org.opencontainers.image.source="https://github.com/Gastaan/swiss-grounding-mcp" \
+      org.opencontainers.image.description="MCP server: cited answers about Switzerland from official sources" \
+      org.opencontainers.image.licenses="MIT"
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /uvx /bin/
 # HOST=0.0.0.0: inside a container the server must listen on all interfaces (the default is localhost).
 # Set SGM_AUTH_TOKEN when the port is reachable from outside a trusted network.
@@ -23,4 +27,6 @@ ENV HF_HUB_OFFLINE=1
 USER sgm
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:%s/health' % os.environ['PORT'])"
-CMD ["/app/.venv/bin/swiss-grounding-mcp", "--transport", "http"]
+# HTTP by default (Docker, Cloud Run); MCP clients that start the image themselves pass "--transport stdio"
+ENTRYPOINT ["/app/.venv/bin/swiss-grounding-mcp"]
+CMD ["--transport", "http"]
