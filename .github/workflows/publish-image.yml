@@ -1,0 +1,33 @@
+name: publish-image
+# Builds the Docker image and publishes it to GitHub Container Registry when a version tag (v*) is pushed.
+# The MCP Registry lists it (server.json, registryType "oci"); its ownership check reads the
+# io.modelcontextprotocol.server.name label set in the Dockerfile.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build, check and push
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/swiss-grounding-mcp"
+          version=$(grep -m1 '^version = ' pyproject.toml | cut -d'"' -f2)
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match pyproject version ${version}"; exit 1
+          fi
+          docker build -t "$image:$version" -t "$image:latest" .
+          # the image must answer MCP over stdio, as registry clients start it
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            | timeout 60 docker run -i --rm "$image:$version" --transport stdio | grep -q '"serverInfo"'
+          docker push "$image:$version"
+          docker push "$image:latest"

@@ -1,0 +1,1404 @@
+<!doctype html>
+<title>Swiss Grounding MCP</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An MCP server that gives AI assistants authoritative, cited answers about Switzerland from federal, cantonal and municipal sources.">
+<style>
+/* Swiss International Style: white paper, black ink, one red. Square corners, hard rules, a 12-column grid. */
+:root {
+  --sans: "Helvetica Neue", Helvetica, Arial, "Nimbus Sans", "Liberation Sans", sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --paper: #FFFFFF;
+  --ink: #000000;
+  --grey: #666666;
+  --hair: #D6D6D6;
+  --tint: #F2F2F2;
+  --red: #E30613;
+  --on-red: #FFFFFF;
+  --ok: #00854A;
+  --ask: #0047FF;
+  --warn: #FFB000;
+  --gutter: clamp(16px, 3.2vw, 40px);
+  color-scheme: light;
+}
+* { box-sizing: border-box; border-radius: 0; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 400 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip;
+}
+a { color: inherit; }
+img, svg { max-width: 100%; }
+code, pre { font-family: var(--mono); }
+:focus-visible { outline: 3px solid var(--ask); outline-offset: 2px; }
+h1, h2, h3, h4, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+.wrap { max-width: 1320px; margin-inline: auto; padding-inline: var(--gutter); }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; }
+@media (max-width: 640px) { .grid { column-gap: 8px; } }
+.label { font: 700 13px/1.3 var(--sans); letter-spacing: 0.01em; }
+.label::before { content: ""; display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; vertical-align: 0; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--grey); }
+
+/* ---------- Buttons: rectangles ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 28px; height: 52px; padding-inline: 20px;
+  font: 700 15px/1 var(--sans); text-decoration: none; cursor: pointer; border: 2px solid var(--ink);
+  background: var(--ink); color: var(--paper);
+}
+.btn:hover { background: var(--red); border-color: var(--red); color: var(--on-red); }
+.btn-line { background: transparent; color: var(--ink); }
+.btn-line:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn-white { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.btn-white:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.btn-outline-white { background: transparent; color: var(--on-red); border-color: var(--on-red); }
+.btn-outline-white:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+.btn-sm { height: 40px; padding-inline: 14px; font-size: 14px; gap: 14px; }
+
+/* ---------- Nav ---------- */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50; background: var(--paper); border-bottom: 2px solid var(--ink); }
+.nav-inner { display: flex; align-items: center; gap: 32px; height: 64px; }
+.logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+.logo svg { width: 30px; height: 30px; flex: none; }
+.nav-links { display: flex; gap: 28px; margin-right: auto; }
+.nav-links a { text-decoration: none; font-size: 15px; font-weight: 500; padding-block: 6px; border-bottom: 2px solid transparent; }
+.nav-links a:hover, .nav-links a[aria-current="page"] { border-bottom-color: var(--red); }
+.nav-cta { display: flex; gap: 8px; }
+@media (max-width: 900px) { .nav-links a.opt { display: none; } .nav-cta .gh { display: none; } }
+@media (max-width: 460px) { .logo span { display: none; } .nav-inner { gap: 18px; } }
+
+/* ---------- Hero: red field ---------- */
+.hero {
+  background-color: var(--red); color: var(--on-red); position: relative;
+  padding-block: clamp(40px, 6vw, 72px) 0;
+}
+.hero-top { align-items: start; row-gap: 28px; }
+.hero-meta { grid-column: 1 / span 3; display: grid; gap: 4px; font-size: 14px; font-weight: 500; }
+.hero-meta b { font-weight: 700; }
+.hero-meta-r { grid-column: 10 / span 3; font-size: 14px; font-weight: 500; text-align: right; }
+.hero h1 {
+  grid-column: 1 / -1; margin-top: clamp(28px, 5vw, 64px);
+  font-size: clamp(44px, 12.2vw, 178px); line-height: 0.86; letter-spacing: -0.058em; font-weight: 700;
+}
+.hero-row { margin-top: clamp(32px, 4vw, 56px); row-gap: 28px; align-items: end; }
+.hero-lede { grid-column: 1 / span 6; font-size: clamp(19px, 1.7vw, 23px); line-height: 1.38; font-weight: 500; }
+.hero-actions { grid-column: 8 / -1; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.hero-actions .btn { min-width: 230px; }
+@media (max-width: 900px) {
+  .hero-meta { grid-column: 1 / span 8; } .hero-meta-r { grid-column: 9 / -1; }
+  .hero-lede, .hero-actions { grid-column: 1 / -1; } .hero-actions { justify-content: flex-start; }
+}
+@media (max-width: 520px) { .hero-meta-r { display: none; } .hero-meta { grid-column: 1 / -1; } .hero-actions .btn { min-width: 0; flex: 1 1 100%; } }
+
+.install { margin-top: clamp(36px, 4vw, 56px); display: flex; border-top: 2px solid var(--on-red); font: 14px/1.4 var(--mono); }
+.install code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; padding: 16px 0; }
+.install .copy { border: 0; border-left: 2px solid var(--on-red); background: transparent; color: var(--on-red); padding-inline: 20px; }
+.install .copy:hover { background: var(--paper); color: var(--ink); }
+.copy { flex: none; font: 700 13px/1 var(--sans); padding: 10px 14px; border: 2px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer; }
+.copy:hover { background: var(--ink); color: var(--paper); }
+
+/* ---------- Demo: the prompt box, sits on the red/white seam ---------- */
+.demo-shell { position: relative; }
+.demo-shell::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px; background: var(--red); }
+.demo { position: relative; background: var(--paper); color: var(--ink); border: 2px solid var(--ink); }
+.prompt { display: grid; grid-template-columns: clamp(44px, 8vw, 76px) minmax(0, 1fr); border-bottom: 2px solid var(--ink); }
+.prompt-lang { display: grid; place-items: center; border-right: 2px solid var(--ink); font: 700 22px/1 var(--sans); letter-spacing: -0.02em; background: var(--ink); color: var(--paper); }
+.prompt-main { padding: 22px 24px 18px; min-width: 0; }
+.prompt-q { font-size: clamp(19px, 2.2vw, 28px); line-height: 1.25; letter-spacing: -0.02em; font-weight: 500; min-height: 2.5em; }
+.prompt-q .caret { display: inline-block; width: 3px; height: 1em; background: var(--red); vertical-align: -0.12em; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.prompt-bar { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.call-tag { font: 13px/1.3 var(--mono); color: var(--grey); overflow-x: auto; white-space: nowrap; min-width: 0; flex: 1; }
+.send { width: 44px; height: 44px; background: var(--red); color: var(--on-red); display: grid; place-items: center; border: 0; cursor: pointer; flex: none; }
+.send:hover { background: var(--ink); }
+.chips { display: flex; overflow-x: auto; border-bottom: 2px solid var(--ink); scrollbar-width: thin; }
+.chip {
+  flex: none; display: inline-flex; gap: 10px; align-items: baseline; padding: 14px 18px; font: 500 14px/1 var(--sans);
+  border: 0; border-right: 1px solid var(--hair); background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.chip .l { font: 700 11px/1 var(--mono); color: var(--grey); }
+.chip:hover { background: var(--tint); }
+.chip[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.chip[aria-selected="true"] .l { color: var(--red); }
+.result { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.result > div { padding: 24px; min-width: 0; }
+.result > div + div { border-left: 2px solid var(--ink); background: var(--tint); }
+@media (max-width: 860px) { .result { grid-template-columns: 1fr; } .result > div + div { border-left: 0; border-top: 2px solid var(--ink); } }
+.panel-label { font: 700 12px/1 var(--sans); margin-bottom: 16px; display: flex; justify-content: space-between; gap: 12px; }
+.panel-label span:last-child { font: 12px/1 var(--mono); color: var(--grey); }
+.summary { font-size: 17px; line-height: 1.45; margin-top: 14px; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.opts span { font: 700 13px/1 var(--mono); padding: 9px 11px; border: 2px solid var(--ask); color: var(--ask); }
+.cites { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--ink); }
+.cite { padding: 12px 0; border-bottom: 1px solid var(--hair); display: grid; gap: 6px; }
+.cite-top { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 14px; font-weight: 700; }
+.jur { font: 700 12px/1 var(--mono); padding: 5px 7px; background: var(--red); color: var(--on-red); }
+.lvl { font: 12px/1 var(--mono); color: var(--grey); font-weight: 400; }
+.cite a { font: 12.5px/1.4 var(--mono); word-break: break-all; text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 3px; }
+.cite a:hover { text-decoration-color: var(--red); }
+.answer { font-size: 18px; line-height: 1.5; }
+.answer strong { color: var(--red); }
+.gloss { margin-top: 16px; font-size: 14px; color: var(--grey); border-top: 1px solid var(--ink); padding-top: 12px; }
+.demo-note { font-size: 13px; color: var(--grey); padding-block: 12px 0; }
+
+/* status tags */
+.status { display: inline-flex; align-items: center; gap: 8px; font: 700 12.5px/1 var(--mono); padding: 6px 9px 6px 6px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); white-space: nowrap; }
+.status::before { content: ""; width: 10px; height: 10px; background: currentColor; }
+.s-ok::before { background: var(--ok); }
+.s-needs_context::before { background: var(--ask); }
+.s-not_covered::before { background: var(--red); }
+.s-not_found::before { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.s-source_error::before { background: var(--warn); }
+
+/* ---------- Stats ---------- */
+.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: clamp(56px, 7vw, 96px); border-top: 2px solid var(--ink); }
+.stat { padding: 16px 20px 0 0; }
+.stat + .stat { border-left: 1px solid var(--ink); padding-left: 16px; }
+.stat b { display: block; font-size: clamp(40px, 5.4vw, 80px); letter-spacing: -0.05em; line-height: .9; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat span { display: block; margin-top: 12px; font-size: 14px; max-width: 16em; }
+@media (max-width: 760px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat, .stat + .stat { padding: 16px 12px 18px 0; border-left: 0; border-bottom: 1px solid var(--ink); }
+  .stat:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--ink); }
+  .stat:last-child { grid-column: 1 / -1; border-bottom: 0; }
+}
+
+/* ---------- Sections: label column + content ---------- */
+section.block { padding-block: clamp(72px, 9vw, 128px) 0; scroll-margin-top: 66px; }
+.sec { border-top: 2px solid var(--ink); padding-top: 18px; row-gap: 24px; }
+.sec-label { grid-column: 1 / span 3; }
+.sec-body { grid-column: 4 / -1; min-width: 0; }
+.sec h2 { font-size: clamp(34px, 5.6vw, 84px); line-height: 0.92; letter-spacing: -0.05em; }
+.sec .intro { margin-top: 24px; font-size: 19px; line-height: 1.45; max-width: 40em; }
+.sec .content { margin-top: clamp(40px, 5vw, 64px); }
+@media (max-width: 900px) { .sec-label, .sec-body { grid-column: 1 / -1; } }
+
+/* jurisdiction: nested squares */
+.juris { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: start; }
+@media (max-width: 900px) { .juris { grid-template-columns: 1fr; } }
+.nestfig { aspect-ratio: 1; max-width: 460px; width: 100%; border: 2px solid var(--ink); position: relative; padding: 11%; }
+.nestfig > div { width: 100%; height: 100%; border: 2px solid var(--ink); position: relative; padding: 16%; }
+.nestfig > div > div { width: 100%; height: 100%; background: var(--red); position: relative; }
+.nestfig span { position: absolute; top: 8px; left: 10px; font: 700 clamp(12px, 1.4vw, 15px)/1 var(--mono); }
+.nestfig > div > div > span { color: var(--on-red); }
+.levels { border-top: 1px solid var(--ink); }
+.lvl-row { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid var(--ink); }
+.lvl-row .code { font: 700 17px/1.2 var(--mono); }
+.lvl-row .code i { font-style: normal; color: var(--red); }
+.lvl-row h3 { font-size: 24px; letter-spacing: -0.03em; line-height: 1.1; }
+.lvl-row h3 small { font-size: 15px; font-weight: 400; color: var(--grey); letter-spacing: 0; margin-left: 8px; }
+.lvl-row p { margin-top: 6px; }
+@media (max-width: 520px) { .lvl-row { grid-template-columns: 1fr; } }
+.rule-note { margin-top: 28px; padding: 18px 20px; background: var(--ink); color: var(--paper); font-size: 16px; line-height: 1.5; }
+.rule-note b { color: var(--paper); }
+
+/* statuses */
+.statuses { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 2px solid var(--ink); border-left: 1px solid var(--ink); }
+.st-card { border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 20px 18px 22px; display: grid; gap: 14px; align-content: start; }
+.st-card h3 { font-size: 21px; letter-spacing: -0.03em; line-height: 1.1; }
+.st-card p { font-size: 14.5px; }
+.st-card .ex { font: 12.5px/1.45 var(--mono); color: var(--grey); margin-top: auto; }
+@media (max-width: 1100px) { .statuses { grid-template-columns: repeat(2, minmax(0, 1fr)); } .st-card:first-child { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .statuses { grid-template-columns: 1fr; } }
+
+/* tools */
+.tool-groups { border-top: 2px solid var(--ink); }
+.tgroup { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 12px 24px; padding-block: 20px; border-bottom: 1px solid var(--ink); }
+.tgroup h3 { font-size: 22px; letter-spacing: -0.03em; }
+.tgroup h3 small { display: block; margin-top: 6px; font-size: 14px; font-weight: 400; color: var(--grey); letter-spacing: 0; }
+.trow { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr); gap: 4px 20px; padding: 10px 0; text-decoration: none; align-items: baseline; border-bottom: 1px solid var(--hair); }
+.trow:last-child { border-bottom: 0; }
+.trow code { font-size: 14px; font-weight: 700; }
+.trow:hover code { color: var(--red); }
+.trow .d { font-size: 15px; }
+.trow .src { font-size: 13px; color: var(--grey); }
+@media (max-width: 980px) { .tgroup { grid-template-columns: 1fr; } .trow { grid-template-columns: 1fr; } }
+
+/* tables */
+.table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; padding: 12px 16px 12px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+th { font-size: 12px; font-weight: 700; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 0; padding-left: 16px; }
+td strong { font-weight: 700; }
+.cov td:first-child { font-weight: 700; min-width: 190px; }
+.cov td { min-width: 150px; }
+.limits { margin-top: 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--ink); }
+.limits div { padding: 18px 20px 20px 0; font-size: 15px; }
+.limits div + div { padding-left: 20px; border-left: 1px solid var(--ink); }
+.limits b { display: block; font-size: 17px; margin-bottom: 6px; color: var(--red); }
+@media (max-width: 820px) { .limits { grid-template-columns: 1fr; } .limits div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--hair); } }
+
+/* eval */
+.eval-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; }
+.eval-card { display: grid; gap: 20px; align-content: start; border-top: 2px solid var(--ink); padding-top: 16px; }
+.eval-card h3 { font-size: 24px; letter-spacing: -0.03em; }
+.bars { display: grid; gap: 16px; }
+.brow { display: grid; grid-template-columns: minmax(0, 190px) minmax(0, 1fr); gap: 12px; align-items: center; font-size: 14px; }
+.btrack { display: grid; gap: 3px; }
+.b { height: 24px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font: 700 12px/1 var(--mono); font-variant-numeric: tabular-nums; min-width: 34px; }
+.b.kw { background: var(--hair); color: var(--ink); }
+.b.hy { background: var(--red); color: var(--on-red); }
+.legend { display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+.legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+.legend .kw::before { background: var(--hair); }
+.legend .hy::before { background: var(--red); }
+@media (max-width: 900px) { .eval-grid { grid-template-columns: 1fr; } .brow { grid-template-columns: 1fr; gap: 6px; } }
+.big-score { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.big-score b { font-size: clamp(88px, 10vw, 150px); letter-spacing: -0.06em; line-height: .8; font-variant-numeric: tabular-nums; }
+.big-score span { font-size: 15px; max-width: 16em; padding-bottom: 4px; }
+
+/* connect */
+.connect { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 40px; align-items: start; }
+@media (max-width: 1000px) { .connect { grid-template-columns: 1fr; } }
+.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; border-top: 2px solid var(--ink); }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--ink); }
+.steps li::before { content: counter(s); font: 700 44px/0.85 var(--sans); letter-spacing: -0.05em; color: var(--red); }
+.steps b { display: block; font-size: 18px; letter-spacing: -0.01em; }
+.steps p { font-size: 15px; margin-top: 4px; }
+.tabs { border: 2px solid var(--ink); }
+.tablist { display: flex; overflow-x: auto; border-bottom: 2px solid var(--ink); }
+.tab { flex: none; border: 0; border-right: 1px solid var(--ink); background: var(--paper); color: var(--ink); padding: 14px 18px; font: 700 14px/1 var(--sans); cursor: pointer; }
+.tab:hover { background: var(--tint); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+.tabpanel { padding: 20px; display: grid; gap: 14px; }
+.tabpanel p { font-size: 15px; }
+
+pre.code { margin: 0; background: var(--tint); color: var(--ink); border-left: 4px solid var(--ink); padding: 16px 18px; overflow-x: auto; font-size: 13px; line-height: 1.6; tab-size: 2; }
+pre.code .c { color: var(--grey); }
+pre.code .k { color: var(--red); font-weight: 700; }
+.code-box { position: relative; }
+.code-box .copy { position: absolute; top: 8px; right: 8px; }
+
+/* faq */
+.faq { border-top: 2px solid var(--ink); }
+.faq details { border-bottom: 1px solid var(--ink); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; font-size: clamp(19px, 2vw, 25px); font-weight: 700; letter-spacing: -0.025em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; flex: none; width: 22px; height: 22px; background:
+  linear-gradient(var(--red), var(--red)) center / 100% 5px no-repeat, linear-gradient(var(--red), var(--red)) center / 5px 100% no-repeat; }
+.faq details[open] summary::after { background: linear-gradient(var(--ink), var(--ink)) center / 100% 5px no-repeat; }
+.faq summary:hover { color: var(--red); }
+.faq .a { padding: 0 0 24px; max-width: 46em; font-size: 16.5px; }
+
+/* closing */
+.closing { background: var(--ink); color: var(--paper); margin-top: clamp(96px, 11vw, 160px); padding-block: clamp(56px, 8vw, 104px); }
+.closing .grid { row-gap: 32px; align-items: end; }
+.closing h2 { grid-column: 1 / span 9; font-size: clamp(48px, 8.6vw, 132px); line-height: .88; letter-spacing: -0.058em; }
+.closing h2 em { font-style: normal; color: var(--red); }
+.closing .cross { grid-column: 10 / -1; justify-self: end; width: min(100%, 220px); }
+.closing p { grid-column: 1 / span 6; font-size: 19px; }
+.closing .acts { grid-column: 7 / -1; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@media (max-width: 900px) { .closing h2, .closing p, .closing .acts { grid-column: 1 / -1; } .closing .acts { justify-content: flex-start; } .closing .cross { display: none; } }
+
+/* footer */
+footer { padding-block: 48px 32px; border-top: 2px solid var(--ink); }
+.foot { row-gap: 32px; }
+.foot > div:first-child { grid-column: 1 / span 6; }
+.foot > div:not(:first-child) { grid-column: span 2; }
+.foot h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; }
+.foot a { text-decoration: none; }
+.foot a:hover { color: var(--red); }
+.foot .blurb { font-size: 15px; max-width: 30em; margin-top: 14px; }
+@media (max-width: 820px) { .foot > div:first-child { grid-column: 1 / -1; } .foot > div:not(:first-child) { grid-column: span 4; } }
+@media (max-width: 480px) { .foot > div:not(:first-child) { grid-column: span 6; } }
+.wordmark { margin-top: 56px; font-size: clamp(40px, 10.6vw, 150px); font-weight: 700; letter-spacing: -0.062em; line-height: .78; white-space: nowrap; overflow: hidden; padding-bottom: .06em; }
+.wordmark i { font-style: normal; color: var(--red); }
+.fine { margin-top: 24px; padding-top: 12px; border-top: 1px solid var(--ink); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; }
+
+/* ---------- Docs ---------- */
+.docs { padding-block: 40px; row-gap: 24px; }
+.side { grid-column: 1 / span 3; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); align-self: start; max-height: calc(100vh - 104px); overflow-y: auto; padding-bottom: 20px; }
+.side h5 { font-size: 13px; font-weight: 700; margin: 24px 0 6px; padding-top: 8px; border-top: 2px solid var(--ink); }
+.side h5:first-child { margin-top: 0; }
+.side ul { list-style: none; margin: 0; padding: 0; }
+.side a { display: flex; align-items: center; gap: 10px; text-decoration: none; font-size: 15px; padding: 6px 0; border-bottom: 1px solid var(--hair); }
+.side a::before { content: ""; width: 8px; height: 8px; flex: none; background: transparent; }
+.side a:hover { color: var(--red); }
+.side a[aria-current="true"] { font-weight: 700; }
+.side a[aria-current="true"]::before { background: var(--red); }
+.doc { grid-column: 4 / span 8; min-width: 0; }
+@media (max-width: 900px) {
+  .side { grid-column: 1 / -1; position: static; max-height: none; }
+  .side ul { display: flex; flex-wrap: wrap; column-gap: 16px; }
+  .side a { border-bottom: 0; }
+  .doc { grid-column: 1 / -1; }
+}
+.doc > section { scroll-margin-top: 84px; padding-bottom: 56px; }
+.doc > section + section { border-top: 2px solid var(--ink); padding-top: 16px; }
+.doc .eyebrow { font: 700 13px/1 var(--sans); }
+.doc .eyebrow::before { content: ""; display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+.doc h1 { font-size: clamp(44px, 7vw, 96px); letter-spacing: -0.058em; line-height: .88; margin-top: 20px; }
+.doc h2 { font-size: clamp(30px, 3.4vw, 44px); letter-spacing: -0.045em; line-height: 1; margin-bottom: 20px; }
+.doc h3 { font-size: 21px; letter-spacing: -0.025em; margin: 32px 0 10px; scroll-margin-top: 84px; }
+.doc p, .doc li { font-size: 16.5px; line-height: 1.6; max-width: 44em; }
+.doc > section > * + * { margin-top: 16px; }
+.doc > section > h3 { margin-top: 36px; }
+.doc ul { padding-left: 0; list-style: none; display: grid; gap: 8px; }
+.doc ul li { padding-left: 22px; position: relative; }
+.doc ul li::before { content: ""; position: absolute; left: 0; top: .62em; width: 8px; height: 8px; background: var(--ink); }
+.doc :not(pre) > code { font-size: .86em; background: var(--tint); padding: 1px 5px; }
+.doc .lede { font-size: 22px; line-height: 1.4; font-weight: 500; margin-top: 28px; max-width: 34em; }
+.doc .table-wrap table { font-size: 14px; }
+.doc td code { white-space: nowrap; }
+.callout { background: var(--red); color: var(--on-red); padding: 18px 20px; font-size: 15.5px; line-height: 1.5; }
+.callout code { background: rgba(255,255,255,.18) !important; color: var(--on-red); }
+.tool-doc { border-top: 1px solid var(--ink); padding-top: 18px; margin-top: 28px; scroll-margin-top: 84px; }
+.tool-doc h3 { margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.tool-doc h3 code { font-size: 19px; font-weight: 700; background: none !important; padding: 0 !important; }
+.tool-doc h3 span { font-size: 15px; font-weight: 400; color: var(--grey); letter-spacing: 0; }
+.tool-doc > * + * { margin-top: 14px; }
+.tool-doc .src { font-size: 13.5px; color: var(--grey); }
+.req { font: 700 10.5px/1 var(--mono); color: var(--red); margin-left: 8px; }
+.docs-foot { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 15px; }
+.closing .btn:hover { background: var(--red); border-color: var(--red); color: var(--on-red); }
+
+/* ---------- Alpine field notes: warm paper, forest ink, and a slow reading rhythm ---------- */
+:root {
+  --paper: #f5f3e9;
+  --ink: #20392f;
+  --grey: #58685e;
+  --hair: #cbd1c5;
+  --tint: #e9ede3;
+  --red: #a84632;
+  --on-red: #fffdf5;
+  --ok: #287351;
+  --ask: #466b67;
+  --warn: #bd812d;
+  --forest: #20392f;
+  --moss: #667d63;
+  --meadow: #dce4d0;
+  --sky: #dce8e4;
+  --sans: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+body { line-height: 1.65; background: var(--paper); }
+::selection { background: #ccd9c2; color: var(--forest); }
+.nav { border-bottom: 1px solid var(--hair); background: rgba(245,243,233,.94); backdrop-filter: blur(14px); }
+.logo { letter-spacing: -.035em; }
+.logo svg { border-radius: 50%; overflow: hidden; background: var(--forest); }
+.logo svg rect:first-child { fill: var(--forest); }
+.nav-links a:hover, .nav-links a[aria-current="page"] { border-bottom-color: var(--moss); }
+.btn { border-radius: 3px; border-width: 1px; font-weight: 650; }
+.btn:hover { background: var(--moss); border-color: var(--moss); }
+.btn-line { border-color: var(--hair); }
+.btn-line:hover { background: var(--forest); border-color: var(--forest); }
+.label { color: var(--moss); text-transform: uppercase; letter-spacing: .12em; font-size: 11px; }
+.label::before { width: 7px; height: 7px; border-radius: 50%; background: var(--moss); }
+.hero { overflow: hidden; isolation: isolate; color: #f7f5e9; background: var(--forest); padding-block: clamp(38px, 5vw, 68px) 0; }
+.hero::before { content: ""; position: absolute; z-index: -1; inset: 0; opacity: .44; background: radial-gradient(ellipse at 75% 12%, #718c78 0, transparent 38%), linear-gradient(155deg, transparent 55%, #172d27 55.1%); }
+.hero h1 { max-width: 12ch; font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.065em; line-height: .94; font-size: clamp(52px, 9vw, 128px); }
+.hero-meta { color: #d6dfd2; }
+.hero-meta-r { color: #d6dfd2; letter-spacing: .12em; }
+.hero-lede { max-width: 35em; font-size: clamp(18px, 1.5vw, 21px); line-height: 1.55; font-weight: 400; color: #f0f0e5; }
+.hero-row { position: relative; z-index: 1; }
+.hero h1 { position: relative; z-index: 1; }
+.hero .btn-white { background: #f5f3e9; border-color: #f5f3e9; color: var(--forest); }
+.hero .btn-white:hover { background: #dce4d0; border-color: #dce4d0; }
+.hero .btn-outline-white { border-color: #c3d0c1; color: #f7f5e9; }
+.hero .btn-outline-white:hover { color: var(--forest); }
+.hero .install { border-top-color: #687c6c; }
+.hero .install .copy { border-left-color: #687c6c; }
+.hero .install .copy:hover { background: #f5f3e9; color: var(--forest); }
+.demo-shell::before { height: 120px; background: var(--forest); }
+.demo { border: 1px solid #cbd1c5; border-radius: 4px; overflow: hidden; box-shadow: 0 24px 55px rgba(32,57,47,.12); }
+.prompt, .chips { border-color: var(--hair); }
+.prompt-lang { background: #e5eadf; color: var(--forest); border-color: var(--hair); }
+.prompt-q .caret { background: var(--moss); }
+.send { background: var(--moss); border-radius: 50%; }
+.chip { border-color: var(--hair); }
+.chip[aria-selected="true"] { background: var(--forest); }
+.chip[aria-selected="true"] .l { color: #b9c9ad; }
+.result > div + div { border-color: var(--hair); }
+.jur { background: var(--moss); }
+.status { border-color: var(--hair); border-radius: 99px; }
+.stats { border-top: 1px solid var(--hair); }
+.stat + .stat { border-left-color: var(--hair); }
+.stat b { font-family: Georgia, "Times New Roman", serif; font-weight: 400; color: var(--forest); }
+section.block { padding-block: clamp(76px, 9vw, 132px) 0; }
+.sec { border-top: 1px solid var(--hair); }
+.sec h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.05em; line-height: .99; }
+.sec .intro { max-width: 37em; line-height: 1.62; color: #41564a; }
+.nestfig { border: 1px solid #90a28f; border-radius: 50%; padding: 13%; background: radial-gradient(circle, #e0e8d8 0 33%, #e8ede2 33% 61%, #eff0e5 61%); transition: background-color .6s ease; }
+.nestfig::after { content:""; position:absolute; inset:5%; border:1px solid rgba(102,125,99,.3); border-radius:50%; box-shadow:0 0 0 14px rgba(102,125,99,.07),0 0 0 28px rgba(102,125,99,.06); opacity:.4; pointer-events:none; }
+.block.is-visible .nestfig::after { animation: contour-breathe 7s ease-in-out infinite alternate; }
+@keyframes contour-breathe { to { transform:scale(1.045); opacity:.8; } }
+.nestfig > div { border-color: #81977d; border-radius: 50%; padding: 16%; }
+.nestfig > div > div { background: var(--moss); border-radius: 50%; transition: transform .7s cubic-bezier(.2,.7,.2,1); }
+.nestfig > div > div > span { color: #fffdf5; }
+.nestfig span { top: 9%; left: 43%; font-size: clamp(10px,1.15vw,13px); }
+.nestfig > div > span { top: 17%; left: 39%; }
+.nestfig > div > div > span { top: 44%; left: 23%; }
+.lvl-row { border-color: var(--hair); padding-block: 24px; transition: padding-left .5s ease, background-color .5s ease; }
+.lvl-row .code { color: var(--moss); }
+.lvl-row h3 { font-family: Georgia, "Times New Roman", serif; font-size: 27px; font-weight: 400; }
+.rule-note { background: #e3e9dc; color: var(--forest); border-left: 3px solid var(--moss); }
+.statuses { border-color: var(--hair); border-radius: 4px; overflow: hidden; }
+.st-card { border-color: var(--hair); background: rgba(255,255,255,.19); }
+.st-card h3 { font-family: Georgia, "Times New Roman", serif; font-size: 24px; font-weight: 400; }
+.st-card .ex { color: var(--grey); }
+.tgroup, .tool-groups, .table-wrap { border-color: var(--hair); }
+.tgroup { border-color: var(--hair); }
+.tgroup h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.trow { border-color: var(--hair); }
+.trow:hover code { color: var(--moss); }
+th, td { border-color: var(--hair); }
+th { border-color: var(--moss); color: #41564a; }
+.limits { border-color: var(--hair); }
+.limits div + div { border-color: var(--hair); }
+.limits b { color: var(--moss); }
+.eval-card { border-color: var(--hair); }
+.eval-card h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.b.kw, .legend .kw::before { background: #c6d1bc; }
+.b.hy, .legend .hy::before { background: var(--moss); }
+.steps { border-color: var(--hair); }
+.steps li { border-color: var(--hair); }
+.steps li::before { color: var(--moss); font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.tabs { border: 1px solid var(--hair); border-radius: 4px; overflow: hidden; }
+.tab { border-color: var(--hair); }
+.tab[aria-selected="true"] { background: var(--forest); }
+pre.code { background: #e8ebe1; border-left-color: var(--moss); }
+.code-box .copy { border-radius: 3px; }
+.faq { border-color: var(--hair); }
+.faq details { border-color: var(--hair); }
+.faq summary { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.faq summary::after { background: linear-gradient(var(--moss),var(--moss)) center/100% 3px no-repeat,linear-gradient(var(--moss),var(--moss)) center/3px 100% no-repeat; }
+.faq details[open] summary::after { background: linear-gradient(var(--forest),var(--forest)) center/100% 3px no-repeat; }
+.faq summary:hover { color: var(--moss); }
+.closing { background: var(--forest); position: relative; overflow: hidden; }
+.closing::after { content: ""; position: absolute; width: 48vw; aspect-ratio: 1.6; right: -6vw; bottom: -37%; opacity: .22; border: 1px solid #d9e2d1; border-radius: 50%; box-shadow: 0 0 0 22px var(--forest), 0 0 0 23px #d9e2d1, 0 0 0 48px var(--forest), 0 0 0 49px #d9e2d1, 0 0 0 78px var(--forest), 0 0 0 79px #d9e2d1; pointer-events:none; }
+.closing h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; }
+.closing h2 em { color: #c5d3b9; }
+.closing .cross { opacity: .7; }
+.closing .btn:hover { background: var(--moss); border-color: var(--moss); color: #fffdf5; }
+footer { border-color: var(--hair); }
+.wordmark { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: -.065em; }
+.wordmark i { color: var(--moss); }
+.fine { border-color: var(--hair); }
+
+/* A gentle reading trail. Content stays in document flow; animation only marks each new chapter. */
+.reading-progress { position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 3px; background: transparent; pointer-events:none; }
+.reading-progress span { display:block; width:100%; height:100%; background:#a9bc9e; transform:scaleX(0); transform-origin:left center; }
+.block .sec, .block .content, .block .statuses { opacity: 1; transform: none; transition: opacity .75s ease, transform .75s cubic-bezier(.2,.7,.2,1); }
+.block .content { transition-delay: .11s; }
+body.motion-ready #home .block:not(.is-visible) .sec,
+body.motion-ready #home .block:not(.is-visible) .content,
+body.motion-ready #home .block:not(.is-visible) .statuses { opacity: 0; transform: translateY(18px); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+  .block .sec, .block .content, .statuses, .tool-groups, .cov, .eval-grid, .connect, .faq { opacity: 1; transform: none; transition: none; }
+  .nestfig::after { animation: none !important; }
+}
+</style>
+
+<div class="reading-progress" aria-hidden="true"><span id="reading-progress-fill"></span></div>
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top" aria-label="Swiss Grounding MCP, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#E30613"/><rect x="13" y="6" width="6" height="20" fill="#fff"/><rect x="6" y="13" width="20" height="6" fill="#fff"/></svg>
+      <span>Swiss Grounding</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="opt" href="#how">How it works</a>
+      <a class="opt" href="#tools">Tools</a>
+      <a class="opt" href="#coverage">Coverage</a>
+      <a class="opt" href="#eval">Results</a>
+      <a href="#docs" id="nav-docs">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-line btn-sm gh" href="https://github.com/Gastaan/swiss-grounding-mcp">GitHub</a>
+      <a class="btn btn-sm" href="#connect">Connect</a>
+    </div>
+  </div>
+</header>
+
+<!-- =================================================================== HOME -->
+<main id="home">
+  <div id="top"></div>
+  <section class="hero">
+    <div class="wrap">
+      <div class="grid hero-top">
+        <div class="hero-meta"><b>MCP server</b><span>Swiss AI Weeks, Zurich 2026</span></div>
+        <div class="hero-meta-r">de · fr · it · rm · en</div>
+        <h1>Every answer needs a source.</h1>
+      </div>
+      <div class="grid hero-row">
+        <p class="hero-lede">Swiss Grounding gives AI assistants authoritative, cited answers about Switzerland, from federal, cantonal and municipal sources, in all four national languages and English.</p>
+        <div class="hero-actions">
+          <a class="btn btn-white" href="#connect">Connect your assistant <span aria-hidden="true">→</span></a>
+          <a class="btn btn-outline-white" href="#docs">Read the docs <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <div class="install">
+        <code><span id="install-cmd">claude mcp add swiss -- uvx --from git+https://github.com/Gastaan/swiss-grounding-mcp swiss-grounding-mcp</span></code>
+        <button class="copy" type="button" data-copy="install-cmd">Copy</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="demo-shell">
+    <div class="wrap">
+      <div class="demo" id="demo">
+        <div class="prompt">
+          <div class="prompt-lang" id="demo-lang">IT</div>
+          <div class="prompt-main">
+            <div class="prompt-q" id="demo-q" aria-live="polite"></div>
+            <div class="prompt-bar">
+              <span class="call-tag" id="demo-call"></span>
+              <button class="send" type="button" id="demo-next" aria-label="Show the next example">
+                <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="chips" role="tablist" aria-label="Example questions" id="demo-chips"></div>
+        <div class="result">
+          <div>
+            <div class="panel-label"><span>Tool result</span><span id="demo-tool"></span></div>
+            <div id="demo-status"></div>
+            <p class="summary" id="demo-summary"></p>
+            <div class="opts" id="demo-opts"></div>
+            <ul class="cites" id="demo-cites"></ul>
+          </div>
+          <div>
+            <div class="panel-label"><span>What the assistant said</span></div>
+            <div class="answer" id="demo-answer"></div>
+            <p class="gloss" id="demo-gloss"></p>
+          </div>
+        </div>
+      </div>
+      <p class="demo-note">Questions and answers from the published evaluation (Claude Code with Sonnet, 25 September 2026). Tool results are shortened for display.</p>
+
+      <div class="stats">
+        <div class="stat"><b>13</b><span>read-only tools, one response contract</span></div>
+        <div class="stat"><b>2110</b><span>municipalities, by name, postcode or address</span></div>
+        <div class="stat"><b>10630</b><span>official pages in the search index</span></div>
+        <div class="stat"><b>5</b><span>languages: de, fr, it, rm, en</span></div>
+        <div class="stat"><b>0</b><span>API keys or accounts needed</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">How it works</span></div>
+        <div class="sec-body">
+          <h2>Federal, cantonal, communal. It picks the right one.</h2>
+          <p class="intro">In Switzerland the answer depends on where you live. Every citation carries its level and a jurisdiction code, down to the municipality's BFS number, so the assistant can say which rule applies to whom.</p>
+          <div class="content juris">
+            <div class="nestfig" aria-hidden="true">
+              <span>CH</span>
+              <div><span>CH-VD</span><div><span>CH-VD-5586</span></div></div>
+            </div>
+            <div>
+              <div class="levels">
+                <div class="lvl-row"><div class="code">CH</div><div><h3>Federal<small>Confederation</small></h3><p>ch.ch in five languages, federal offices, Fedlex law texts, FOPH premiums, FSO registers, MeteoSwiss, SNB, the official timetable.</p></div></div>
+                <div class="lvl-row"><div class="code">CH-<i>VD</i></div><div><h3>Cantonal<small>26 cantons</small></h3><p>Cantonal portals of 23 cantons in the search index, school holidays for all 26, cantonal vote results.</p></div></div>
+                <div class="lvl-row"><div class="code">CH-VD-<i>5586</i></div><div><h3>Municipal<small>Lausanne, BFS no. 5586</small></h3><p>All 2,110 municipalities with population, postcodes and official website. Waste calendars and pages of the 12 largest cities.</p></div></div>
+              </div>
+              <p class="rule-note">When a place is given, search prefers the most specific jurisdiction. If no cantonal or municipal page matches as well as the federal ones, the result says so and cites the municipality's website, so a federal page is never passed off as the local rule.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honesty -->
+  <section class="block" id="honest">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">Honest by design</span></div>
+        <div class="sec-body">
+          <h2>It asks. It declines. It never guesses.</h2>
+          <p class="intro">Every tool returns one of five statuses. The assistant knows when to answer, when to ask back for a missing essential, and when to say plainly that something is not covered.</p>
+        </div>
+      </div>
+      <div class="statuses" style="margin-top:48px">
+        <div class="st-card"><span class="status s-ok">ok</span><h3>Answer, with citations</h3><p>One factual sentence that ends with its source, plus verbatim excerpts from the official page.</p><div class="ex">1.25 %, BWO, since 02.09.2025</div></div>
+        <div class="st-card"><span class="status s-needs_context">needs_context</span><h3>Ask exactly one question</h3><p>Only for essentials, such as which of three municipalities called Buchs is meant.</p><div class="ex">Buchs (ZH) · Buchs (SG) · Buchs (AG)</div></div>
+        <div class="st-card"><span class="status s-not_covered">not_covered</span><h3>Say it is out of scope</h3><p>Places outside Switzerland, or topics outside the declared coverage.</p><div class="ex">Konstanz is in Germany</div></div>
+        <div class="st-card"><span class="status s-not_found">not_found</span><h3>Say nothing was found</h3><p>No passage covers the question well enough. The assistant must not fill the gap from memory.</p><div class="ex">no evidence above threshold</div></div>
+        <div class="st-card"><span class="status s-source_error">source_error</span><h3>Name the source that is down</h3><p>With the official link. A cached copy is used instead when one exists, labelled with its date.</p><div class="ex">stale_sources: 2026-09-24</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section class="block" id="tools">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">13 tools</span></div>
+        <div class="sec-body">
+          <h2>From the Code of Obligations to the cardboard pickup.</h2>
+          <p class="intro">Specific tools for the questions people ask most, and full-text search over official pages for everything else. All read-only, all cited.</p>
+          <div class="content tool-groups" id="tool-groups"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Coverage -->
+  <section class="block" id="coverage">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">Declared scope</span></div>
+        <div class="sec-body">
+          <h2>What it covers, and how fresh it is.</h2>
+          <p class="intro">The same table is available to the assistant through the <code class="mono">swiss_coverage</code> tool, so it can check scope before it answers.</p>
+          <div class="content">
+            <div class="table-wrap"><table class="cov"><thead><tr><th>Topic</th><th>Geography</th><th>Source</th><th>Freshness</th></tr></thead><tbody id="cov-home"></tbody></table></div>
+            <div class="limits">
+              <div><b>Only Switzerland</b>Questions about other countries, such as the German broadcasting fee in Konstanz, get <code class="mono">not_covered</code>.</div>
+              <div><b>Three cantons not indexed</b>GR, BL and SH block automated clients. VS and TI are partially indexed. Federal pages still apply.</div>
+              <div><b>Not provided</b>Cantonal law texts, individual tax calculations and weather forecasts.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="block" id="eval">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">Measured</span></div>
+        <div class="sec-body">
+          <h2>Tested with real clients and real models.</h2>
+          <p class="intro">16 questions in five languages, including ask-back, out-of-scope and not-covered cases, run end to end through MCP clients. Misses are reported in the README with their causes.</p>
+          <div class="content eval-grid">
+            <div class="eval-card">
+              <h3>End to end: answers that pass</h3>
+              <div class="big-score"><b>15/16</b><span>Claude Code with Sonnet. 1.3 tool calls and 15 seconds on average.</span></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Client and model</th><th class="num">Pass</th><th class="num">Calls</th><th class="num">Sec.</th></tr></thead>
+                  <tbody>
+                    <tr><td>Claude Code + Sonnet</td><td class="num"><strong>15/16</strong></td><td class="num">1.3</td><td class="num">15</td></tr>
+                    <tr><td>Claude Code + Haiku</td><td class="num"><strong>14/16</strong></td><td class="num">1.1</td><td class="num">13</td></tr>
+                    <tr><td>OpenCode + gpt-5.4-mini</td><td class="num">13/16</td><td class="num">1.4</td><td class="num">9</td></tr>
+                    <tr><td>OpenCode + gpt-4.1-mini</td><td class="num">13/16</td><td class="num">1.0</td><td class="num">7</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="muted" style="font-size:13.5px">An answer passes when its content is correct and it cites an accepted official source. Claude Code rows: keyword-search run of 25 September 2026. OpenCode rows: first run of the same day, before the hardening changes.</p>
+            </div>
+            <div class="eval-card">
+              <h3>Search: questions answered</h3>
+              <p>29 hand-labelled questions whose answer is in the index. Counted as answered when an official page on the topic is among the 5 results.</p>
+              <div class="legend"><span class="kw">Keyword only</span><span class="hy">Hybrid</span></div>
+              <div class="bars" id="bars"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Connect -->
+  <section class="block" id="connect">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">Get started</span></div>
+        <div class="sec-body">
+          <h2>Connected in under a minute.</h2>
+          <p class="intro">The prebuilt data ships in the repository: municipality register, health premiums and the search index. Nothing to download or configure.</p>
+          <div class="content connect">
+            <ol class="steps">
+              <li><div><b>Install uv</b><p>It installs Python 3.13 for you. See <a href="https://docs.astral.sh/uv/">docs.astral.sh/uv</a>.</p></div></li>
+              <li><div><b>Add the server to your client</b><p>Over stdio for a local client, or Streamable HTTP at <code class="mono">/mcp</code> for a shared service.</p></div></li>
+              <li><div><b>Ask about Switzerland</b><p>In any language. Answers come back with the official URL written out.</p></div></li>
+            </ol>
+            <div class="tabs">
+              <div class="tablist" role="tablist" aria-label="MCP clients" id="client-tabs"></div>
+              <div class="tabpanel" role="tabpanel" id="client-panel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="block" id="faq">
+    <div class="wrap">
+      <div class="grid sec">
+        <div class="sec-label"><span class="label">Questions</span></div>
+        <div class="sec-body">
+          <h2>Frequently asked.</h2>
+          <div class="content faq">
+            <details open><summary>Do I need an API key or an account?</summary><div class="a"><p>No. Every source is public Swiss open data or an official web page. The optional hybrid search runs a local embedding model, also without a key.</p></div></details>
+            <details><summary>What happens with a question that is not about Switzerland?</summary><div class="a"><p>Places are resolved first. A foreign place such as Konstanz returns <code class="mono">not_covered</code>, and the server instructions tell the assistant not to answer from memory. A general question the assistant never sends to the server, such as another country's capital, cannot be intercepted.</p></div></details>
+            <details><summary>How current is the information?</summary><div class="a"><p>Timetables, weather, votes, rates, the company register and waste dates are fetched live and cached briefly. The search index of official pages is rebuilt weekly, and <code class="mono">read_official_page</code> reads any official page live. Federal law is the version in force today.</p></div></details>
+            <details><summary>Which places does it understand?</summary><div class="a"><p>Names in any national language or English (Genf, Ginevra, Genève), old names (Schuls becomes Scuol), postcodes (8003), and addresses (Bahnhofstrasse 1, Zürich). Ambiguous names return the options to ask about.</p></div></details>
+            <details><summary>Can I run it as a shared service?</summary><div class="a"><p>Yes. Start it with <code class="mono">--transport http</code> or use the Docker image. It listens on localhost by default and supports a bearer token, an Origin check against DNS rebinding and a per-IP rate limit. <code class="mono">/health</code> and <code class="mono">/metrics</code> report its state.</p></div></details>
+            <details><summary>Is it polite to the websites it reads?</summary><div class="a"><p>It respects robots.txt on every host and every redirect, identifies itself in the User-Agent, paces requests per host and caches responses on disk. It only reads recognised Swiss government domains.</p></div></details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="closing">
+    <div class="wrap grid">
+      <h2>Ground your assistant in <em>Switzerland.</em></h2>
+      <svg class="cross" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#E30613"/><rect x="13" y="6" width="6" height="20" fill="#fff"/><rect x="6" y="13" width="20" height="6" fill="#fff"/></svg>
+      <p>Built for the Swisscom Swiss Grounding MCP challenge. Open source under the MIT licence.</p>
+      <div class="acts">
+        <a class="btn btn-white" href="#connect">Connect your assistant <span aria-hidden="true">→</span></a>
+        <a class="btn btn-outline-white" href="https://github.com/Gastaan/swiss-grounding-mcp">View on GitHub <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- =================================================================== DOCS -->
+<div id="docs-view" hidden>
+  <div class="wrap grid docs">
+    <aside class="side" aria-label="Documentation">
+      <h5>Start</h5>
+      <ul>
+        <li><a href="#docs">Introduction</a></li>
+        <li><a href="#docs-quickstart">Quick start</a></li>
+        <li><a href="#docs-connect">Connect a client</a></li>
+      </ul>
+      <h5>Reference</h5>
+      <ul>
+        <li><a href="#docs-contract">Response contract</a></li>
+        <li><a href="#docs-places">Places</a></li>
+        <li><a href="#docs-tools">Tools</a></li>
+        <li><a href="#docs-coverage">Coverage</a></li>
+        <li><a href="#docs-search">Search</a></li>
+      </ul>
+      <h5>Operate</h5>
+      <ul>
+        <li><a href="#docs-config">Configuration</a></li>
+        <li><a href="#docs-security">HTTP security</a></li>
+        <li><a href="#docs-etiquette">Caching and etiquette</a></li>
+        <li><a href="#docs-monitoring">Monitoring</a></li>
+        <li><a href="#docs-data">Data and refresh</a></li>
+      </ul>
+      <h5>Develop</h5>
+      <ul>
+        <li><a href="#docs-architecture">Architecture</a></li>
+        <li><a href="#docs-extend">Adding a source</a></li>
+        <li><a href="#docs-testing">Testing</a></li>
+        <li><a href="#docs-license">Licence</a></li>
+      </ul>
+    </aside>
+
+    <article class="doc">
+      <section id="docs-intro">
+        <div class="eyebrow">Documentation · v0.1.0</div>
+        <h1>Swiss Grounding MCP</h1>
+        <p class="lede">An MCP server that gives AI assistants authoritative, cited, jurisdiction-correct answers about Switzerland, from federal, cantonal and municipal sources, in German, French, Italian, Romansh and English.</p>
+        <ul style="margin-top:20px">
+          <li><b>No API keys, no accounts.</b> Everything is public Swiss open data or official web pages.</li>
+          <li><b>13 read-only tools</b>, one response contract, citations on every result.</li>
+          <li><b>Honest by design.</b> Asks back only for missing essentials, says clearly when something is not covered or not in Switzerland, never fills gaps from memory.</li>
+          <li>Runs locally over <b>stdio</b> or as a <b>Streamable HTTP</b> service (<code>/mcp</code>, <code>/health</code>).</li>
+        </ul>
+      </section>
+
+      <section id="docs-quickstart">
+        <h2>Quick start</h2>
+        <p>Requires <a href="https://docs.astral.sh/uv/">uv</a>, which installs Python 3.13 automatically.</p>
+        <div class="code-box"><pre class="code" id="qs-code">git clone https://github.com/Gastaan/swiss-grounding-mcp && cd swiss-grounding-mcp
+uv sync                                                  <span class="c"># installs dependencies (keyword search)</span>
+uv sync --extra semantic                                 <span class="c"># optional: hybrid search</span>
+uv run swiss-grounding-mcp                               <span class="c"># stdio (for local MCP clients)</span>
+uv run swiss-grounding-mcp --transport http --port 8000  <span class="c"># HTTP: http://localhost:8000/mcp</span>
+curl localhost:8000/health</pre><button class="copy" type="button" data-copy="qs-code">Copy</button></div>
+        <p>The prebuilt data (municipality register, health premiums, search index) ships in the repository. The first start unpacks the index in about a second.</p>
+        <h3>Docker</h3>
+        <pre class="code">docker build -t swiss-grounding-mcp .
+docker run -p 8000:8000 swiss-grounding-mcp               <span class="c"># http://localhost:8000/mcp</span></pre>
+        <p>The image (about 1.4 GB, including hybrid search and its model) listens on all interfaces (<code>HOST=0.0.0.0</code>) as an unprivileged user and never downloads anything at runtime. When its port is reachable from outside a trusted network, add <code>-e SGM_AUTH_TOKEN=&lt;secret&gt;</code>.</p>
+        <h3>Without cloning</h3>
+        <pre class="code">uvx --from git+https://github.com/Gastaan/swiss-grounding-mcp swiss-grounding-mcp</pre>
+      </section>
+
+      <section id="docs-connect">
+        <h2>Connect a client</h2>
+        <p>Use absolute paths, and replace <code>/path/to/swiss-grounding-mcp</code> with your clone. Any client that speaks MCP over stdio or Streamable HTTP works. Tested with Claude Code, OpenCode, the MCP Inspector CLI and the FastMCP client, including the legacy <code>initialize</code> handshake (protocol 2025-06-18) and the stateless 2026-07-28 protocol.</p>
+        <div id="docs-clients"></div>
+      </section>
+
+      <section id="docs-contract">
+        <h2>Response contract</h2>
+        <p>Every tool returns the same JSON object, as <code>structuredContent</code> with an <code>outputSchema</code> and as text.</p>
+        <pre class="code">{
+  <span class="k">"status"</span>: "ok | needs_context | not_covered | not_found | source_error",
+  <span class="k">"summary"</span>: "One factual sentence, ending with 'Source: &lt;publisher&gt; – &lt;url&gt;'",
+  <span class="k">"data"</span>: {"...": "tool-specific facts"},
+  <span class="k">"citations"</span>: [{"title": "", "url": "", "publisher": "",
+                 "level": "federal|cantonal|municipal|semi-official|community",
+                 "jurisdiction": "CH | CH-VD | CH-VD-5586", "retrieved_at": "",
+                 "valid_for": "", "excerpt": "verbatim"}],
+  <span class="k">"missing_context"</span>: [{"field": "municipality", "question": "…",
+                       "options": ["Buchs (ZH)", "Buchs (SG)"]}],
+  <span class="k">"guidance"</span>: "what the assistant should do next"
+}</pre>
+        <h3>Statuses</h3>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Status</th><th>What the assistant does</th></tr></thead>
+          <tbody>
+            <tr><td><span class="status s-ok">ok</span></td><td>Answers in the user's language, states the reference date and writes out the source URL.</td></tr>
+            <tr><td><span class="status s-needs_context">needs_context</span></td><td>Asks the user exactly the question in <code>summary</code>, for example which municipality, or which of three called Buchs.</td></tr>
+            <tr><td><span class="status s-not_covered">not_covered</span></td><td>Says the question is outside Switzerland or outside the declared scope.</td></tr>
+            <tr><td><span class="status s-not_found">not_found</span></td><td>Says nothing was found. Never answers from memory.</td></tr>
+            <tr><td><span class="status s-source_error">source_error</span></td><td>Says the official source is unavailable and gives the citation link.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Details</h3>
+        <ul>
+          <li>Invalid arguments are returned with <code>isError: true</code> and a readable message.</li>
+          <li><code>data.stale_sources</code> appears when a live source was down and an earlier cached copy was used (at most <code>SGM_MAX_STALE_HOURS</code> old). <code>guidance</code> then tells the assistant to give the user that date.</li>
+          <li><code>search_official_info</code> sets <code>data.local_match: false</code> when a place was given but no cantonal or municipal page matched as well as the federal ones. The summary says so and the municipality's website is cited.</li>
+          <li>The output schema lists the top-level fields only. The fields inside <code>citations</code> and <code>missing_context</code> are described once in the server instructions, which keeps <code>tools/list</code> small.</li>
+          <li>A jurisdiction is <code>CH</code>, <code>CH-&lt;canton&gt;</code> or <code>CH-&lt;canton&gt;-&lt;BFS municipality number&gt;</code>.</li>
+        </ul>
+      </section>
+
+      <section id="docs-places">
+        <h2>Places</h2>
+        <p>Pass places exactly as the user wrote them. The server resolves them against the official register of 2,110 municipalities.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Input</th><th>Resolves to</th></tr></thead>
+          <tbody>
+            <tr><td><code>Genf</code>, <code>Ginevra</code>, <code>Genève</code></td><td>Genève (GE)</td></tr>
+            <tr><td><code>Schuls</code></td><td>Scuol (GR), BFS no. 3762</td></tr>
+            <tr><td><code>8003</code>, <code>Zurich 8003</code></td><td>Zürich (ZH), BFS no. 261</td></tr>
+            <tr><td><code>Bahnhofstrasse 1, Zürich</code></td><td>Zürich, geocoded via swisstopo</td></tr>
+            <tr><td><code>Buchs</code></td><td><span class="status s-needs_context">needs_context</span> with options Buchs (ZH), Buchs (SG), Buchs (AG)</td></tr>
+            <tr><td><code>Konstanz</code></td><td><span class="status s-not_covered">not_covered</span>: in Germany, not in Switzerland</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="docs-tools">
+        <h2>Tools</h2>
+        <p>All tools are read-only (<code>readOnlyHint</code>, <code>idempotentHint</code>) and share the response contract. Pick the specific tool first. For procedures, rules, fees and "how do I…" questions use <code>search_official_info</code>, then <code>read_official_page</code> for detail. Parameters of type <code>place</code> take a municipality, postcode, address or canton in any language; <code>language</code> is one of <code>de</code>, <code>fr</code>, <code>it</code>, <code>rm</code>, <code>en</code>.</p>
+        <div id="tool-docs"></div>
+      </section>
+
+      <section id="docs-coverage">
+        <h2>Coverage</h2>
+        <p>The declared scope. The assistant can read it at runtime with <code>swiss_coverage</code>.</p>
+        <div class="table-wrap"><table class="cov"><thead><tr><th>Topic</th><th>Geography</th><th>Source</th><th>Freshness</th></tr></thead><tbody id="cov-docs"></tbody></table></div>
+        <h3>Not covered, and limitations</h3>
+        <ul>
+          <li>Anything outside Switzerland, such as the German <i>Rundfunkbeitrag</i> in Konstanz. The server says so.</li>
+          <li>Cantons GR, BL and SH block or do not serve text to automated clients, so their cantonal pages are not in the index. ch.ch and federal pages still apply, and <code>read_official_page</code> reports the block. VS and TI are only partially indexed.</li>
+          <li>Municipal web pages are indexed only for the 12 largest cities. For other municipalities the server returns the official website and can read a given page live.</li>
+          <li>Cantonal law texts, individual tax calculations and weather forecasts are not provided.</li>
+          <li>Waste calendars exist only where municipalities publish open data. Elsewhere the server says so and links the municipality.</li>
+          <li>School holidays come from OpenHolidays, which aggregates official lists. The EDK list and the municipality site are cited alongside for verification.</li>
+          <li>Romansh is not covered by the embedding model used for hybrid search.</li>
+        </ul>
+      </section>
+
+      <section id="docs-search">
+        <h2>Search</h2>
+        <p><code>search_official_info</code> ranks passages of the index with SQLite FTS5/BM25 plus rules: the user's language, the most specific jurisdiction, and how many query words a passage covers.</p>
+        <p>With the optional <code>semantic</code> extra it becomes <b>hybrid</b>. A local multilingual embedding model (<code>paraphrase-multilingual-MiniLM-L12-v2</code>, ONNX, no API key) ranks the same passages by meaning, and the two rankings are merged with reciprocal-rank fusion, keeping the preference for cantonal and municipal pages when a place is given. The best keyword hit always keeps first place, so exact matches are never pushed out.</p>
+        <pre class="code">uv sync --extra semantic   <span class="c"># /health then shows "search": "hybrid (…)"</span></pre>
+        <h3>Measured quality</h3>
+        <p>Measured with <code>scripts/search_eval.py</code>: 29 hand-labelled questions whose answer is in the index, plus 5 without one.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Question kind</th><th class="num">Keyword only</th><th class="num">Hybrid</th></tr></thead>
+          <tbody>
+            <tr><td>Uses the page's own words (7)</td><td class="num">7</td><td class="num">7</td></tr>
+            <tr><td>Same language, other words (8)</td><td class="num">3</td><td class="num">5</td></tr>
+            <tr><td>Another language than the only official page (14)</td><td class="num">2</td><td class="num">8</td></tr>
+            <tr><td><strong>Answered (29)</strong></td><td class="num"><strong>12</strong></td><td class="num"><strong>20</strong></td></tr>
+            <tr><td>No correct page exists: says so instead of passing off another page (5)</td><td class="num">4</td><td class="num">4</td></tr>
+          </tbody>
+        </table></div>
+        <p>A result only counts as evidence if it covers at least half of the query's words or is close in meaning (cosine ≥ 0.7). With no such result the tool answers <code>not_found</code>. The threshold was set so that none of the questions without a correct page gets through by similarity alone.</p>
+        <div class="callout"><div><b>Costs of the semantic extra.</b> About 240 MB for the model (downloaded once into <code>SGM_MODEL_DIR</code>, or at image build time in Docker), about 130 MB of Python packages, 12 MB for <code>data/embeddings.npz</code>, and about 20 ms per search. Without the extra, or with <code>SGM_SEMANTIC=off</code>, none of it is loaded.</div></div>
+      </section>
+
+      <section id="docs-config">
+        <h2>Configuration</h2>
+        <p>All settings are environment variables. No credentials are required to use the sources.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Variable</th><th>Default</th><th>Meaning</th></tr></thead>
+          <tbody id="config-rows"></tbody>
+        </table></div>
+      </section>
+
+      <section id="docs-security">
+        <h2>HTTP security</h2>
+        <p>The stdio transport has no network exposure. For <code>--transport http</code>:</p>
+        <ul>
+          <li>The server listens on <code>127.0.0.1</code> unless <code>HOST</code> or <code>--host</code> says otherwise, and logs a warning when it listens on another interface without a token.</li>
+          <li><b>Origin check (DNS-rebinding protection).</b> Browser requests whose <code>Origin</code> is not in <code>SGM_ALLOWED_ORIGINS</code> get <code>403</code>. MCP clients send no <code>Origin</code> header and are unaffected. On localhost the <code>Host</code> header is checked as well.</li>
+          <li><b>Optional bearer token.</b> With <code>SGM_AUTH_TOKEN</code> set, <code>/mcp</code> and <code>/metrics</code> answer <code>401</code> without <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+          <li><b>Rate limit.</b> <code>SGM_RATE_LIMIT</code> requests per minute per client IP (token bucket), <code>429</code> with <code>Retry-After</code> beyond that.</li>
+          <li>The Docker image runs as an unprivileged user.</li>
+        </ul>
+        <pre class="code">claude mcp add --transport http swiss-http http://host:8000/mcp \
+  --header "Authorization: Bearer &lt;token&gt;"</pre>
+      </section>
+
+      <section id="docs-etiquette">
+        <h2>Caching and etiquette</h2>
+        <ul>
+          <li>robots.txt is checked per host and cached for 24 h. An unreachable robots.txt (5xx) means "disallow". Documented APIs (geo.admin.ch, Fedlex SPARQL, SNB, OpenHolidays, transport.opendata.ch, open-data portals) are called as APIs; website pages always go through the robots check.</li>
+          <li>Requests identify the project in the User-Agent and are paced per host (<code>SGM_MIN_INTERVAL</code>). Identical requests already in flight share one upstream call.</li>
+          <li>Responses are cached on disk with per-source lifetimes: timetables 1 min, weather and votes 10 min, pages and rates 6 h, waste 12 h, register 1 day, law and holidays 7 days.</li>
+          <li>When a source is down, an expired copy up to <code>SGM_MAX_STALE_HOURS</code> old is served and the result says so. Without a usable copy the result is <code>source_error</code> with the official link. No stack traces reach the model.</li>
+          <li>Every tool call has a time limit (<code>SGM_TOOL_TIMEOUT</code>), so a chain of slow upstream calls ends in a clear <code>source_error</code> instead of a client timeout.</li>
+          <li><code>read_official_page</code> only reads recognised Swiss government domains: admin.ch, ch.ch, the 26 cantons, about 2,090 municipal websites, and bodies with a legal mandate. Redirects are followed one hop at a time and each target is checked again (allowlist, robots.txt, never a private or reserved address).</li>
+        </ul>
+      </section>
+
+      <section id="docs-monitoring">
+        <h2>Monitoring</h2>
+        <ul>
+          <li><code>GET /health</code>: version, data build dates, index size, search mode and <code>sources_with_errors</code>. Used by the Docker <code>HEALTHCHECK</code>.</li>
+          <li><code>GET /metrics</code>: per tool (calls, statuses, average and maximum latency, average response size) and per upstream host (requests, cache hits, errors, stale copies served, last error).</li>
+          <li><code>.github/workflows/live-sources.yml</code> calls every real source daily and opens or comments on a <code>source-broken</code> issue when one fails.</li>
+          <li>Logs go to stderr: one line per tool call (tool, status, bytes, ms) and per upstream fetch (host and path, never query strings).</li>
+        </ul>
+      </section>
+
+      <section id="docs-data">
+        <h2>Data and refresh</h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>File in <code>data/</code></th><th>Built by</th><th>Contents</th></tr></thead>
+          <tbody>
+            <tr><td><code>places.json</code></td><td><code>build_places.py</code></td><td>2,110 municipalities: BFS number, canton, district, premium region, postcodes, localities, population, website, holiday region</td></tr>
+            <tr><td><code>premiums_&lt;year&gt;.csv.gz</code></td><td><code>build_premiums.py</code></td><td>Official FOPH premium table, insurer and plan names, municipality restrictions</td></tr>
+            <tr><td><code>index.sqlite.gz</code></td><td><code>build_index.py</code></td><td>FTS5 index of official pages (robots.txt respected, per-host pacing)</td></tr>
+            <tr><td><code>embeddings.npz</code></td><td><code>build_embeddings.py</code></td><td>int8 vectors of every index passage, tagged with the index they belong to</td></tr>
+          </tbody>
+        </table></div>
+        <pre class="code">uv run --group build python scripts/build_places.py
+uv run --group build python scripts/build_premiums.py 2026 2027
+uv run --group build python scripts/build_index.py   <span class="c"># ~20 min cold</span></pre>
+        <p><code>.github/workflows/refresh-data.yml</code> rebuilds everything weekly, the embeddings right after the index so they always match, and opens a pull request that includes the search-quality numbers.</p>
+        <p>Municipal websites come from Wikidata, which anyone can edit, and they decide which domains count as official. So only <code>.ch</code> and <code>.swiss</code> addresses that are not on a free hosting platform are accepted. Reviewed exceptions live in <code>data/website_overrides.json</code>, and every weekly pull request lists each website that changed or was rejected.</p>
+      </section>
+
+      <section id="docs-architecture">
+        <h2>Architecture</h2>
+        <pre class="code">MCP client ──stdio / Streamable HTTP──▶ server.py (FastMCP, 13 tools, one ToolResult contract)
+                                          │
+      places.py (register, exonyms, postcodes, geocoding) · authorities.py (domain → level/jurisdiction)
+                                          │
+  sources/  search (FTS5 index + live pages) · fedlex · premiums · holidays · waste · transport
+            votes · economy · companies · weather
+                                          │
+   http.py: robots.txt · per-host pacing · disk cache with TTL · stale fallback · safe redirects
+                                          │
+      guards.py (HTTP only): bearer token · rate limit   + FastMCP Host/Origin check</pre>
+        <p>Python 3.13, <code>fastmcp</code> 4 on the official <code>mcp</code> 2.x SDK, <code>httpx</code>, <code>protego</code>, <code>trafilatura</code>, SQLite FTS5.</p>
+      </section>
+
+      <section id="docs-extend">
+        <h2>Adding a source</h2>
+        <ul>
+          <li>Write <code>sources/&lt;topic&gt;.py</code> with one async function that returns <code>models.ToolResult</code>. Resolve places with <code>places.resolve()</code> and hand non-municipality results to <code>sources.common.place_problem()</code>, so ambiguous, foreign and unknown places behave like everywhere else.</li>
+          <li>Fetch only through <code>http.fetch()</code> or <code>fetch_json()</code> with a TTL that matches how often the source changes. Pass <code>check_robots=False</code> only for documented APIs.</li>
+          <li>Cite every fact: publisher, <code>level</code>, <code>jurisdiction</code>, <code>retrieved_at</code> or <code>valid_for</code>, and a verbatim <code>excerpt</code> where there is one. Use <code>status</code> honestly: <code>not_covered</code> rather than a guess.</li>
+          <li>Register it in <code>server.py</code> with <code>@tool("Title")</code> and a short docstring. Parameter descriptions are sent on every connection, so keep them brief; a test caps the size of the tool list.</li>
+          <li>Add a row to <code>coverage.py</code> and to the coverage table, an offline test in <code>tests/</code>, and a live check in <code>tests/test_live.py</code>.</li>
+        </ul>
+      </section>
+
+      <section id="docs-testing">
+        <h2>Testing</h2>
+        <pre class="code">uv run pytest -q                                       <span class="c"># offline: contract, places, premiums, honesty, redirects, guards</span>
+uv run --extra semantic pytest -q                      <span class="c"># plus the real embedding model</span>
+uv run --extra semantic python scripts/search_eval.py  <span class="c"># search quality, keyword vs hybrid</span>
+uv run pytest -q -m live                               <span class="c"># live checks against every real source</span>
+uv run ruff check src scripts tests</pre>
+        <h3>End to end</h3>
+        <p>Mirrors the evaluation: two clients and two models each, over <code>eval/questions.json</code> (the 5 published sample questions plus 11 more in de, fr, it, rm and en). Results are written to <code>eval/results/&lt;date&gt;.md</code>.</p>
+        <pre class="code">OPENAI_API_KEY=... uv run python scripts/e2e_eval.py</pre>
+      </section>
+
+      <section id="docs-license">
+        <h2>Licence</h2>
+        <p>Code: MIT. Data retrieved from the sources remains under their terms (Swiss open government data, mostly "open use, must provide the source"). Every answer carries its source.</p>
+        <p class="docs-foot" style="margin-top:28px"><a href="#top">Back to the overview</a><a href="https://github.com/Gastaan/swiss-grounding-mcp">github.com/Gastaan/swiss-grounding-mcp</a></p>
+      </section>
+    </article>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="grid foot">
+      <div>
+        <a class="logo" href="#top">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#E30613"/><rect x="13" y="6" width="6" height="20" fill="#fff"/><rect x="6" y="13" width="20" height="6" fill="#fff"/></svg>
+          <span>Swiss Grounding</span>
+        </a>
+        <p class="blurb">Authoritative, cited answers about Switzerland for AI assistants. Built for the Swisscom Swiss Grounding MCP challenge, Swiss AI Weeks, Zurich 2026.</p>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#tools">Tools</a></li><li><a href="#coverage">Coverage</a></li><li><a href="#eval">Results</a></li></ul></div>
+      <div><h4>Docs</h4><ul><li><a href="#docs-quickstart">Quick start</a></li><li><a href="#docs-contract">Response contract</a></li><li><a href="#docs-tools">Tool reference</a></li><li><a href="#docs-config">Configuration</a></li></ul></div>
+      <div><h4>Sources</h4><ul><li><a href="https://www.ch.ch">ch.ch</a></li><li><a href="https://www.fedlex.admin.ch">Fedlex</a></li><li><a href="https://www.priminfo.admin.ch">priminfo.admin.ch</a></li><li><a href="https://opendata.swiss">opendata.swiss</a></li></ul></div>
+    </div>
+    <div class="wordmark" aria-hidden="true">Swiss Grounding<i>+</i></div>
+    <div class="fine"><span>Code under the MIT licence. Data under the terms of each source.</span><span>Not an official service of the Swiss Confederation.</span></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+  /* ---------------- Demo examples (from eval/results/2026-09-25T0356) ---------------- */
+  var EXAMPLES = [
+    { chip: "Premiums in Lugano", lang: "it",
+      q: "Qual è il premio mensile più basso dell'assicurazione di base per un adulto di 30 anni domiciliato a Lugano con franchigia di 2500 franchi?",
+      call: 'health_insurance_premiums(place="Lugano", age=30, franchise=2500)',
+      status: "ok",
+      summary: "Cheapest 2026 basic insurance premium in Lugano (TI) for age 30, deductible CHF 2,500, without accident cover: CHF 449.90 per month (Agrisano, AGRIsmart).",
+      cites: [{ pub: "Federal Office of Public Health FOPH", level: "federal", jur: "CH-TI-5192", url: "https://www.priminfo.admin.ch/de/praemien" }],
+      answer: "Il premio mensile più basso per il 2026, per un adulto di 30 anni a Lugano con franchigia di 2500 CHF (senza copertura infortuni), è <strong>CHF 449.90</strong>, offerto da Agrisano con il piano «AGRIsmart».",
+      gloss: "The lowest 2026 monthly premium is CHF 449.90, from Agrisano's AGRIsmart plan." },
+    { chip: "Driving licence, Vaud", lang: "fr",
+      q: "Comment puis-je échanger mon permis de conduire étranger contre un permis suisse dans le canton de Vaud, et combien de temps ai-je pour le faire?",
+      call: 'search_official_info(query="permis de conduire étranger échanger", place="Vaud") → read_official_page(…)',
+      status: "ok",
+      summary: "A foreign driving licence must be exchanged for a Swiss one within 12 months of arrival in Switzerland; in Vaud the exchange is handled by the cantonal road office.",
+      cites: [
+        { pub: "État de Vaud", level: "cantonal", jur: "CH-VD", url: "https://www.vd.ch/mobilite/automobile-et-navigation/permis/echanger-un-permis-etranger" },
+        { pub: "ch.ch", level: "federal", jur: "CH", url: "https://www.ch.ch/fr/circulation-et-vehicules/permis-de-conduire/changement-de-permis-de-conduire/" }],
+      answer: "Vous disposez de <strong>12 mois dès votre arrivée en Suisse</strong> pour échanger votre permis de conduire étranger contre un permis suisse (au-delà, l'échange reste possible mais vous risquez une amende).",
+      gloss: "You have 12 months from arrival in Switzerland to exchange the licence. Later exchange is possible but may be fined." },
+    { chip: "School holidays, Scuol", lang: "rm",
+      q: "Cura èn las vacanzas d'atun 2026 per la scola da Scuol?",
+      call: 'swiss_holidays(place="Scuol", year=2026, kind="school", language="rm")',
+      status: "ok",
+      summary: "Autumn school holidays 2026 in Scuol (GR): 10 to 25 October 2026.",
+      cites: [{ pub: "OpenHolidays (aggregated official lists)", level: "community", jur: "CH-GR-3762", url: "https://openholidaysapi.org/SchoolHolidays?countryIsoCode=CH&subdivisionCode=CH-GR-EB-SC" }],
+      answer: "Las vacanzas d'atun 2026 per la scola da Scuol èn dals <strong>10 fin ils 25 october 2026</strong>.",
+      gloss: "Asked and answered in Romansh: autumn holidays run from 10 to 25 October 2026." },
+    { chip: "Cardboard, Zurich 8003", lang: "fr",
+      q: "Quand est le prochain ramassage du carton à Zurich 8003?",
+      call: 'waste_collection(place="Zurich 8003", waste_type="carton")',
+      status: "ok",
+      summary: "Next cardboard collection for postcode 8003 in Zürich: Thursday 1 October 2026, then every Thursday.",
+      cites: [{ pub: "Stadt Zürich", level: "municipal", jur: "CH-ZH-261", url: "https://data.stadt-zuerich.ch/dataset?q=entsorgungskalender" }],
+      answer: "Le prochain ramassage du carton à Zurich 8003 est le <strong>jeudi 1er octobre 2026</strong>, puis chaque jeudi ensuite (8, 15, 22, 29 octobre, etc.).",
+      gloss: "Next pickup Thursday 1 October 2026, then weekly on Thursdays." },
+    { chip: "Which Buchs?", lang: "de",
+      q: "Wann wird in Buchs das nächste Mal Karton abgeholt?",
+      call: 'waste_collection(place="Buchs", waste_type="Karton")',
+      status: "needs_context",
+      summary: "Several municipalities match: Buchs (ZH), Buchs (SG), Buchs (AG). Which one is meant?",
+      options: ["Buchs (ZH)", "Buchs (SG)", "Buchs (AG)"],
+      cites: [],
+      answer: "The assistant asks this one question and nothing else, then calls the tool again with the municipality the user picks.",
+      gloss: "Three municipalities in three cantons share the name. Guessing would give the wrong calendar." },
+    { chip: "Moving to Konstanz", lang: "de",
+      q: "Wie hoch ist der Rundfunkbeitrag, den ich nach meinem Umzug nach Konstanz zahlen muss?",
+      call: 'swiss_place_info(place="Konstanz")',
+      status: "not_covered",
+      summary: "This place is in Germany, not in Switzerland. Swiss rules and sources do not apply there, and this server only covers Switzerland.",
+      cites: [],
+      answer: "The assistant says that Konstanz is in Germany and that Swiss official sources cannot answer this.",
+      gloss: "Konstanz borders Kreuzlingen (TG), which is why it is a common trap for Swiss assistants." },
+    { chip: "Swisscom UID", lang: "en",
+      q: "Is Swisscom AG registered in the commercial register, and what is its UID?",
+      call: 'company_register(name_or_uid="Swisscom AG")',
+      status: "ok",
+      summary: "Swisscom AG is entered in the commercial register, UID CHE-102.753.938, legal seat Bern (BE), VAT-registered.",
+      cites: [{ pub: "Federal Statistical Office FSO (UID register)", level: "federal", jur: "CH", url: "https://www.uid.admin.ch/Detail.aspx?uid_id=CHE102753938" }],
+      answer: "Yes. <strong>Swisscom AG</strong> is registered in the Swiss commercial register. UID: <strong>CHE-102.753.938</strong>. Legal seat: Bern, BE. VAT-registered: yes.",
+      gloss: "Answered from the federal UID register, with the register entry linked." }
+  ];
+
+  var current = 0, typer = null;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var chips = $("demo-chips");
+  EXAMPLES.forEach(function (ex, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.setAttribute("role", "tab"); b.id = "chip-" + i;
+    b.innerHTML = '<span class="l">' + ex.lang.toUpperCase() + "</span>" + esc(ex.chip);
+    b.addEventListener("click", function () { show(i, true); });
+    chips.appendChild(b);
+  });
+
+  function show(i, animate) {
+    current = i;
+    var ex = EXAMPLES[i];
+    Array.prototype.forEach.call(chips.children, function (c, k) { c.setAttribute("aria-selected", k === i ? "true" : "false"); });
+    $("demo-lang").textContent = ex.lang.toUpperCase();
+    $("demo-call").textContent = "→ " + ex.call;
+    $("demo-tool").textContent = ex.call.split("(")[0];
+    $("demo-status").innerHTML = '<span class="status s-' + ex.status + '">' + ex.status + "</span>";
+    $("demo-summary").textContent = ex.summary;
+    $("demo-opts").innerHTML = (ex.options || []).map(function (o) { return "<span>" + esc(o) + "</span>"; }).join("");
+    $("demo-opts").hidden = !ex.options;
+    $("demo-cites").innerHTML = ex.cites.map(function (c) {
+      return '<li class="cite"><div class="cite-top"><span class="jur">' + esc(c.jur) + "</span>" + esc(c.pub) +
+        ' <span class="lvl">' + esc(c.level) + '</span></div><a href="' + esc(c.url) + '">' + esc(c.url) + "</a></li>";
+    }).join("");
+    $("demo-answer").innerHTML = ex.answer;
+    $("demo-gloss").textContent = ex.gloss;
+    var q = $("demo-q");
+    if (typer) { clearInterval(typer); typer = null; }
+    if (!animate || reduce) { q.textContent = ex.q; return; }
+    var n = 0; q.innerHTML = '<span class="caret"></span>';
+    typer = setInterval(function () {
+      n += 3;
+      q.innerHTML = esc(ex.q.slice(0, n)) + '<span class="caret"></span>';
+      if (n >= ex.q.length) { clearInterval(typer); typer = null; q.textContent = ex.q; }
+    }, 18);
+  }
+  $("demo-next").addEventListener("click", function () { show((current + 1) % EXAMPLES.length, true); });
+  show(0, false);
+
+  /* ---------------- Tools ---------------- */
+  var P = { place: ["place", "string", "", "Place as the user said it: municipality, postcode, address or canton, any language."],
+            lang: function (d) { return ["language", "de | fr | it | rm | en", d, "Language of the user's question."]; } };
+  var TOOLS = [
+    { g: 0, name: "search_official_info", title: "Search official Swiss information", short: "Procedures, rules, fees and deadlines, as verbatim excerpts", src: "10,630 official pages",
+      desc: "Full-text search over official Swiss web pages: ch.ch in all languages, federal offices, the cantons and large cities. Use it for procedures, rules, deadlines, fees and \"how do I…\" questions (permits, moving, taxes, social insurance, driving licences, customs, schools, housing, voting). Give place to restrict results to federal plus that canton or municipality. Returns verbatim excerpts with URLs.",
+      params: [["query", "string", "required", "Key words of the question, best in the language of the source (e.g. 'permis de conduire étranger échanger')."], P.place, P.lang(""), ["limit", "integer 1–8", "5", "Number of results."]],
+      ex: 'search_official_info(query="permis de conduire étranger échanger", place="Lausanne", language="fr")' },
+    { g: 0, name: "read_official_page", title: "Read an official page", short: "Live text of an official page, focused on given words", src: "Allowlisted Swiss government domains",
+      desc: "Fetches the current text of an official Swiss page (live, respecting robots.txt) and returns the passages around focus. Only official Swiss domains are allowed.",
+      params: [["url", "string", "required", "URL on an official Swiss domain (admin.ch, ch.ch, a cantonal or municipal site), typically from search_official_info."], ["focus", "string", "", "Words to focus on, e.g. 'délai 12 mois'."], ["max_chars", "integer 500–8000", "3000", "Maximum length of the returned text."]],
+      ex: 'read_official_page(url="https://www.vd.ch/…/echanger-un-permis-etranger", focus="délai 12 mois")' },
+    { g: 0, name: "swiss_federal_law", title: "Swiss federal law (Fedlex)", short: "Articles of any federal act, version in force today", src: "Fedlex, Federal Chancellery",
+      desc: "Quotes federal law from the official consolidated text on Fedlex (version currently in force), with article links. Federal law only; cantonal law is not included.",
+      params: [["sr_number", "string", "", "SR number or abbreviation: '220' or 'OR'/'CO', 'ZGB'/'CC', 'SVG', 'VZV', 'AIG', 'KVG', 'AHVG', 'MWSTG'…"], ["article", "string", "", "Article number, e.g. '335c', '42'."], ["query", "string", "", "Title words to find an act, or (with sr_number) a topic to find the relevant articles, e.g. 'Kündigungsfrist'."], P.lang("de")],
+      ex: 'swiss_federal_law(sr_number="OR", article="335c", language="fr")' },
+    { g: 1, name: "health_insurance_premiums", title: "Health insurance premiums (KVG/LAMal)", short: "Cheapest basic insurance by municipality, age and deductible", src: "FOPH premium data",
+      desc: "Cheapest mandatory basic health insurance premiums (Grundversicherung, assurance de base, assicurazione di base) for a municipality, age and deductible, from the official FOPH premium data, the same data as priminfo.admin.ch.",
+      params: [P.place, ["age", "integer 0–120", "", "Age of the insured person."], ["franchise", "integer", "", "Deductible in CHF (adults 300–2500, children 0–600). Omit to get the cheapest offer for every deductible."], ["accident_cover", "boolean", "false", "Include accident cover (employees are insured by their employer)."], ["insurance_model", "free_choice_of_doctor | family_doctor | hmo | telmed_or_other", "", "Only if the user explicitly asks for one model. Leave empty to compare all."], ["year", "integer", "current year", "Premium year."]],
+      ex: 'health_insurance_premiums(place="Lugano", age=30, franchise=2500)' },
+    { g: 1, name: "swiss_holidays", title: "School and public holidays", short: "School or public holidays by canton or municipality", src: "OpenHolidays, EDK, municipalities",
+      desc: "School holidays by canton or municipality, or public holidays, for a year.",
+      params: [P.place, ["year", "integer", "current year", "Calendar year."], ["kind", "school | public", "school", "School holidays or public holidays."], P.lang("de")],
+      ex: 'swiss_holidays(place="Scuol", year=2026, kind="school", language="rm")' },
+    { g: 1, name: "waste_collection", title: "Waste collection dates", short: "Next collection dates by waste type", src: "Municipal open data",
+      desc: "Next waste collection dates (cardboard, paper, household waste, green waste…) from municipal open data. Needs the municipality; some cities also need a postcode or street, and the tool says so.",
+      params: [P.place, ["waste_type", "string", "", "e.g. Karton/carton/cartone, Papier, Kehricht, Grüngut, Metall. Omit for all types."], ["street", "string", "", "Street (and number) if the user gave one."], ["from_date", "ISO date", "today", "Date to start from."]],
+      ex: 'waste_collection(place="Zurich 8003", waste_type="carton")' },
+    { g: 1, name: "public_transport", title: "Public transport timetable", short: "Connections and departure boards", src: "Official timetable data",
+      desc: "Swiss public transport connections or next departures from the official timetable data.",
+      params: [["origin", "string", "", "Departure station or place, e.g. 'Zürich HB'."], ["destination", "string", "", "Destination; omit for a departure board."], ["when", "ISO date-time", "now", "Europe/Zurich time, e.g. 2026-10-01T08:30."], ["arrival", "boolean", "false", "Interpret when as arrival time."], ["limit", "integer 1–6", "3", "Number of connections."]],
+      ex: 'public_transport(origin="Zürich HB", destination="Bellinzona", when="2026-09-26T08:00")' },
+    { g: 1, name: "current_weather", title: "Current weather (MeteoSwiss)", short: "Latest measurements at the nearest station", src: "MeteoSwiss open data",
+      desc: "Latest measured weather (temperature, humidity, precipitation, wind) at the MeteoSwiss station nearest to a Swiss municipality. Measurements only, no forecasts.",
+      params: [P.place, P.lang("de")],
+      ex: 'current_weather(place="Davos")' },
+    { g: 2, name: "federal_votes", title: "Federal votes", short: "Next vote subjects, or results by canton", src: "FSO, Federal Chancellery",
+      desc: "Subjects of the next federal popular vote, or official results of a past vote.",
+      params: [["vote_date", "ISO date", "", "Date of a vote; omit for the next vote (or the latest if none is scheduled)."], ["place", "string", "", "Canton to add its result."], P.lang("de")],
+      ex: 'federal_votes(vote_date="2026-09-27")' },
+    { g: 2, name: "swiss_rates", title: "Reference interest rate and exchange rates", short: "Mortgage reference rate for rents, SNB exchange rates", src: "BWO, Swiss National Bank",
+      desc: "Current mortgage reference interest rate for rents (BWO) or SNB CHF exchange rates.",
+      params: [["kind", "reference_interest_rate | exchange_rate", "required", "Mortgage reference rate for rents, or SNB exchange rate."], ["currency", "string", "", "For exchange_rate: EUR, USD, GBP…"], P.lang("de")],
+      ex: 'swiss_rates(kind="reference_interest_rate")' },
+    { g: 2, name: "company_register", title: "Company register (UID)", short: "UID, legal seat, commercial register and VAT status", src: "Federal UID register",
+      desc: "Checks whether a company is registered: UID, legal seat, commercial register and VAT status, from the federal UID register.",
+      params: [["name_or_uid", "string", "required", "Company name or UID (CHE-123.456.789)."]],
+      ex: 'company_register(name_or_uid="Swisscom AG")' },
+    { g: 2, name: "swiss_place_info", title: "Swiss place facts", short: "Municipality, canton, BFS number, population, website", src: "FSO register, STATPOP",
+      desc: "Resolves a Swiss place to its official municipality: BFS number, canton, district, postcodes, permanent resident population (latest BFS figure) and official website. Use it for \"how many people live in X\", \"which canton is X in\", or to find a municipality's website.",
+      params: [P.place],
+      ex: 'swiss_place_info(place="Bellinzona")' },
+    { g: 3, name: "swiss_coverage", title: "What this server covers", short: "The declared scope, for the assistant to check", src: "This server",
+      desc: "Lists the topics, geography, sources and freshness this server covers, and what it does not. Call it only when unsure whether a question is in scope.",
+      params: [],
+      ex: "swiss_coverage()" }
+  ];
+  var GROUPS = [["Find and read", "Search, pages, law"], ["Everyday life", "Health, school, home, travel"], ["State and economy", "Votes, rates, companies, places"], ["Scope", "Knowing its limits"]];
+
+  $("tool-groups").innerHTML = GROUPS.map(function (g, gi) {
+    return '<div class="tgroup"><h3>' + g[0] + "<small>" + g[1] + '</small></h3><div class="trows">' +
+      TOOLS.filter(function (t) { return t.g === gi; }).map(function (t) {
+        return '<a class="trow" href="#docs-tool-' + t.name + '"><code>' + t.name + '</code><span class="d">' + esc(t.short) + '</span><span class="src">' + esc(t.src) + "</span></a>";
+      }).join("") + "</div></div>";
+  }).join("");
+
+  $("tool-docs").innerHTML = TOOLS.map(function (t) {
+    var rows = t.params.length ? '<div class="table-wrap"><table><thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>' +
+      t.params.map(function (p) {
+        var req = p[2] === "required";
+        return "<tr><td><code>" + p[0] + "</code>" + (req ? '<span class="req">REQUIRED</span>' : "") + '</td><td class="mono" style="font-size:12.5px">' + esc(p[1]) + "</td><td>" + (req || !p[2] ? "" : "<code>" + esc(p[2]) + "</code>") + "</td><td>" + esc(p[3]) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" : "<p>No parameters.</p>";
+    return '<div class="tool-doc" id="docs-tool-' + t.name + '"><h3><code>' + t.name + "</code><span>" + esc(t.title) + "</span></h3><p>" + esc(t.desc) + "</p>" + rows +
+      '<pre class="code">' + esc(t.ex) + '</pre><p class="src">Source: ' + esc(t.src) + "</p></div>";
+  }).join("");
+
+  /* ---------------- Coverage ---------------- */
+  var COV = [
+    ["Procedures, rules, fees, deadlines", "Federal (ch.ch in 5 languages), portals of 23 cantons, 12 largest cities", "Index of 10,630 official pages, 46,952 passages, plus live page reading", "Built 2026-09-25, weekly"],
+    ["Federal law", "Federal", "Fedlex, Federal Chancellery", "Live, version in force today"],
+    ["Health insurance premiums", "All 2,110 municipalities", "FOPH premium open data", "2026; 2027 when published"],
+    ["School and public holidays", "All 26 cantons; municipality where published", "OpenHolidays, EDK list, municipality website", "2025–2027"],
+    ["Waste collection dates", "Zürich, Basel, St. Gallen, Winterthur and 20 more", "Municipal open data", "Live, next 120 days"],
+    ["Public transport", "All of Switzerland", "Official timetable (opentransportdata.swiss)", "Live"],
+    ["Federal popular votes", "Federal, results by canton", "FSO vote-day open data, Federal Chancellery", "Live"],
+    ["Reference rate, exchange rates", "Federal", "BWO, Swiss National Bank", "Live, cached 6 h"],
+    ["Company registration", "All of Switzerland", "Federal UID register (FSO)", "Live"],
+    ["Place facts", "All 2,110 municipalities, 26 cantons", "BFS register and STATPOP, swisstopo, Wikidata", "Population 2025"],
+    ["Current weather", "Nearest automatic station", "MeteoSwiss open data", "Live, 10-minute values"]
+  ];
+  var covRows = COV.map(function (r) { return "<tr>" + r.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>"; }).join("");
+  $("cov-home").innerHTML = covRows; $("cov-docs").innerHTML = covRows;
+
+  /* ---------------- Search bars ---------------- */
+  var BARS = [["Uses the page's own words", 7, 7, 7], ["Same language, other words", 8, 3, 5], ["Another language than the page", 14, 2, 8], ["All answerable questions", 29, 12, 20]];
+  $("bars").innerHTML = BARS.map(function (b) {
+    var w = function (v) { return (v / b[1] * 100).toFixed(1) + "%"; };
+    return '<div class="brow"><span>' + b[0] + ' <span class="muted">(' + b[1] + ')</span></span><div class="btrack">' +
+      '<div class="b kw" style="width:' + w(b[2]) + '">' + b[2] + '</div><div class="b hy" style="width:' + w(b[3]) + '">' + b[3] + "</div></div></div>";
+  }).join("");
+
+  /* ---------------- Clients ---------------- */
+  var CLIENTS = [
+    { name: "Claude Code", note: "Local over stdio, or the HTTP service.",
+      code: "claude mcp add swiss -- uv run --directory /path/to/swiss-grounding-mcp swiss-grounding-mcp\nclaude mcp add --transport http swiss-http http://localhost:8000/mcp" },
+    { name: "Claude Desktop", note: "In claude_desktop_config.json. Give the full path to uv, e.g. from `which uv`.",
+      code: '{"mcpServers": {"swiss": {\n  "command": "/full/path/to/uv",\n  "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]\n}}}' },
+    { name: "VS Code", note: "In .vscode/mcp.json.",
+      code: '{"servers": {"swiss": {\n  "type": "stdio",\n  "command": "uv",\n  "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]\n}}}' },
+    { name: "Cursor", note: "In .cursor/mcp.json.",
+      code: '{"mcpServers": {"swiss": {\n  "command": "uv",\n  "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]\n}}}' },
+    { name: "OpenCode", note: "In opencode.json.",
+      code: '{\n  "$schema": "https://opencode.ai/config.json",\n  "mcp": {\n    "swiss": {"type": "local", "command": ["uv", "run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"], "enabled": true},\n    "swiss-http": {"type": "remote", "url": "http://localhost:8000/mcp", "enabled": false}\n  }\n}' },
+    { name: "Docker / HTTP", note: "A shared Streamable HTTP service. Add a token when the port is reachable from outside a trusted network.",
+      code: "docker build -t swiss-grounding-mcp .\ndocker run -p 8000:8000 -e SGM_AUTH_TOKEN=<secret> swiss-grounding-mcp\ncurl localhost:8000/health" }
+  ];
+  var tabs = $("client-tabs"), panel = $("client-panel");
+  function showClient(i) {
+    Array.prototype.forEach.call(tabs.children, function (t, k) { t.setAttribute("aria-selected", k === i ? "true" : "false"); t.tabIndex = k === i ? 0 : -1; });
+    var c = CLIENTS[i];
+    panel.innerHTML = "<p>" + esc(c.note) + '</p><div class="code-box"><pre class="code" id="client-code">' + esc(c.code) + '</pre><button class="copy" type="button" data-copy="client-code">Copy</button></div>';
+  }
+  CLIENTS.forEach(function (c, i) {
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "tab"; b.setAttribute("role", "tab"); b.id = "tab-" + i; b.textContent = c.name;
+    b.addEventListener("click", function () { showClient(i); });
+    b.addEventListener("keydown", function (e) {
+      if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+      var n = (i + (e.key === "ArrowRight" ? 1 : CLIENTS.length - 1)) % CLIENTS.length;
+      showClient(n); tabs.children[n].focus();
+    });
+    tabs.appendChild(b);
+  });
+  showClient(0);
+  $("docs-clients").innerHTML = CLIENTS.map(function (c) {
+    return "<h3>" + esc(c.name) + "</h3><p>" + esc(c.note) + '</p><pre class="code">' + esc(c.code) + "</pre>";
+  }).join("");
+
+  /* ---------------- Config ---------------- */
+  var CONFIG = [
+    ["SGM_RESPECT_ROBOTS", "true", "Respect robots.txt of every website fetched (RFC 9309), on every redirect hop."],
+    ["SGM_OFFLINE", "false", "Serve from cache only, never hit the network."],
+    ["SGM_CACHE_DIR", "~/.cache/swiss-grounding-mcp", "HTTP response cache."],
+    ["SGM_CACHE_MAX_DAYS, SGM_CACHE_MAX_MB", "30, 500", "At startup, entries untouched this long are deleted, then the oldest until the cache fits."],
+    ["SGM_MAX_STALE_HOURS", "168", "When a source is down, serve an expired cached copy up to this old, labelled as stale. 0 disables."],
+    ["SGM_HTTP_TIMEOUT", "15", "Seconds per upstream request."],
+    ["SGM_TOOL_TIMEOUT", "30", "Seconds for a whole tool call, however many upstream requests it makes."],
+    ["SGM_MIN_INTERVAL", "0.5", "Minimum seconds between requests to the same host."],
+    ["SGM_USER_AGENT", "SwissGroundingMCP/<version>", "Standard crawler form: names the project and links to it."],
+    ["SGM_TRANSPORT, HOST, PORT", "stdio, 127.0.0.1, 8000", "Same as --transport, --host, --port. The Docker image sets HOST=0.0.0.0."],
+    ["SGM_AUTH_TOKEN", "unset", "HTTP only: require Authorization: Bearer <token> on /mcp and /metrics. /health stays open."],
+    ["SGM_ALLOWED_ORIGINS", "none", "HTTP only: comma-separated browser origins allowed to call /mcp."],
+    ["SGM_RATE_LIMIT", "600", "HTTP only: requests per minute per client IP. 0 disables."],
+    ["SGM_SEMANTIC", "auto", "auto: hybrid search when the semantic extra and embeddings are present; off: keyword only."],
+    ["SGM_MODEL_DIR", "~/.cache/swiss-grounding-mcp/models", "Where the embedding model is stored."],
+    ["SGM_LOG_LEVEL", "INFO", "Log level for stderr logs."]
+  ];
+  $("config-rows").innerHTML = CONFIG.map(function (r) {
+    return "<tr><td>" + r[0].split(", ").map(function (v) { return "<code>" + esc(v) + "</code>"; }).join(" ") + "</td><td><code>" + esc(r[1]) + "</code></td><td>" + esc(r[2]) + "</td></tr>";
+  }).join("");
+
+  /* ---------------- Copy buttons ---------------- */
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest && e.target.closest("[data-copy]");
+    if (!btn) return;
+    var el = $(btn.getAttribute("data-copy"));
+    var text = el.textContent;
+    var done = function (label) { btn.textContent = label; setTimeout(function () { btn.textContent = "Copy"; }, 1600); };
+    var selectIt = function () {
+      var r = document.createRange(); r.selectNodeContents(el);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); done("Selected");
+    };
+    try {
+      navigator.clipboard.writeText(text).then(function () { done("Copied"); }, selectIt);
+    } catch (err) { selectIt(); }
+  });
+
+  /* ---------------- Routing: #docs… shows the docs, anything else the overview ---------------- */
+  var home = $("home"), docsView = $("docs-view"), navDocs = $("nav-docs");
+  var sideLinks = Array.prototype.slice.call(document.querySelectorAll(".side a"));
+  function route() {
+    var h = location.hash || "";
+    var inDocs = h.indexOf("#docs") === 0;
+    var wasDocs = !docsView.hidden;
+    home.hidden = inDocs; docsView.hidden = !inDocs;
+    if (inDocs) navDocs.setAttribute("aria-current", "page"); else navDocs.removeAttribute("aria-current");
+    var id = h === "#docs" ? "docs-intro" : h.slice(1);
+    var target = id && document.getElementById(id);
+    if (target && (h !== "#docs" || !wasDocs)) {
+      var how = inDocs === wasDocs ? "smooth" : "instant";
+      if (h === "#docs" || h === "#top") window.scrollTo({ top: 0, behavior: "instant" }); else target.scrollIntoView({ behavior: how });
+    } else if (!h || h === "#top") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+    if (inDocs) spy();
+  }
+  function spy() {
+    var secs = Array.prototype.slice.call(document.querySelectorAll(".doc > section"));
+    var y = window.scrollY + 120, active = secs[0];
+    secs.forEach(function (s) { if (s.offsetTop <= y) active = s; });
+    var hash = active.id === "docs-intro" ? "#docs" : "#" + active.id;
+    sideLinks.forEach(function (a) { a.setAttribute("aria-current", a.getAttribute("href") === hash ? "true" : "false"); });
+  }
+  /* Scroll reveal and reading trail for the continuous overview. */
+  var progressFill = $("reading-progress-fill");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var homeBlocks = Array.prototype.slice.call(document.querySelectorAll("#home .block"));
+  if ("IntersectionObserver" in window && !reduceMotion) {
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0, rootMargin: "0px 0px -3% 0px" });
+    document.body.classList.add("motion-ready");
+    homeBlocks.forEach(function (block) { revealObserver.observe(block); });
+  } else {
+    homeBlocks.forEach(function (block) { block.classList.add("is-visible"); });
+  }
+  var progressPending = false;
+  function updateProgress() {
+    progressPending = false;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progressFill.style.transform = "scaleX(" + (max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0) + ")";
+  }
+  window.addEventListener("scroll", function () {
+    if (!progressPending) { progressPending = true; window.requestAnimationFrame(updateProgress); }
+    if (!docsView.hidden) spy();
+  }, { passive: true });
+  window.addEventListener("resize", updateProgress, { passive: true });
+  window.addEventListener("hashchange", route);
+  route();
+  updateProgress();
+})();
+</script>

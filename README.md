@@ -40,6 +40,10 @@ The image (~1.4 GB, including hybrid search and its model) listens on all interf
 (`HOST=0.0.0.0`) as an unprivileged user and never downloads anything at runtime. When its port is
 reachable from outside a trusted network, add `-e SGM_AUTH_TOKEN=<secret>` (see [HTTP security](#http-security)).
 
+Published image (GitHub Container Registry, same build): `docker run -p 8000:8000 ghcr.io/gastaan/swiss-grounding-mcp`
+over HTTP, or `docker run -i --rm ghcr.io/gastaan/swiss-grounding-mcp --transport stdio` for an MCP
+client that starts the server itself.
+
 Without cloning (keyword search): `uvx --from git+https://github.com/Gastaan/swiss-grounding-mcp swiss-grounding-mcp`.
 
 ## Hosted endpoint
@@ -58,7 +62,8 @@ No token is needed (read-only public information; rate-limited per client, brows
 It scales to zero when idle, so the first request after a pause starts an instance (about 2 s; hybrid
 search follows about 10 s later, keyword search answers meanwhile). A scheduled workflow
 (`.github/workflows/hosted-check.yml`) checks it every 6 hours. It is listed in the official MCP
-Registry as `io.github.soheil1lotfi/swiss-grounding-mcp` (`server.json`). The code in this repository runs
+Registry as `io.github.soheil1lotfi/swiss-grounding-mcp` (`server.json`), with this hosted endpoint and the
+published Docker image. The code in this repository runs
 locally with the setup below; the hosted instance runs the same commit.
 
 To redeploy after a change to `main` (maintainers, with access to the Google Cloud project):

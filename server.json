@@ -8,11 +8,27 @@
     "source": "github"
   },
   "websiteUrl": "https://github.com/Gastaan/swiss-grounding-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "remotes": [
     {
       "type": "streamable-http",
       "url": "https://swiss-grounding-mcp-542630986415.europe-west6.run.app/mcp"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/gastaan/swiss-grounding-mcp:0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "named",
+          "name": "--transport",
+          "value": "stdio"
+        }
+      ]
     }
   ]
 }
