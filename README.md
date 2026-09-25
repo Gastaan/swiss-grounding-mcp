@@ -44,20 +44,31 @@ Without cloning (keyword search): `uvx --from git+https://github.com/Gastaan/swi
 
 ## Hosted endpoint
 
-A public instance runs on a Hugging Face Space, built from this repository at a pinned commit:
+A public instance runs on Google Cloud Run in Zürich (`europe-west6`), deployed from this repository's
+`main` branch (the revision carries the commit as the label `git-commit`):
 
-- MCP endpoint (Streamable HTTP): `https://soheillotfi-swiss-grounding-mcp.hf.space/mcp`
-- Health: `https://soheillotfi-swiss-grounding-mcp.hf.space/health`
-- Space: https://huggingface.co/spaces/soheillotfi/swiss-grounding-mcp
+- MCP endpoint (Streamable HTTP): `https://swiss-grounding-mcp-542630986415.europe-west6.run.app/mcp`
+- Health: `https://swiss-grounding-mcp-542630986415.europe-west6.run.app/health` · landing page: `https://swiss-grounding-mcp-542630986415.europe-west6.run.app/`
 
 ```sh
-claude mcp add --transport http swiss https://soheillotfi-swiss-grounding-mcp.hf.space/mcp
+claude mcp add --transport http swiss https://swiss-grounding-mcp-542630986415.europe-west6.run.app/mcp
 ```
 
-No token is needed (read-only public information; rate-limited per client). A scheduled workflow
-(`.github/workflows/hosted-check.yml`) checks it every 6 hours, which also keeps the free Space awake.
-It is listed in the official MCP Registry as `io.github.soheil1lotfi/swiss-grounding-mcp` (`server.json`).
-The code in this repository runs locally with the setup below; the Space runs the same commit.
+No token is needed (read-only public information; rate-limited per client, browser origins refused).
+It scales to zero when idle, so the first request after a pause starts an instance (about 2 s; hybrid
+search follows about 10 s later, keyword search answers meanwhile). A scheduled workflow
+(`.github/workflows/hosted-check.yml`) checks it every 6 hours. It is listed in the official MCP
+Registry as `io.github.soheil1lotfi/swiss-grounding-mcp` (`server.json`). The code in this repository runs
+locally with the setup below; the hosted instance runs the same commit.
+
+To redeploy after a change to `main` (maintainers, with access to the Google Cloud project):
+
+```sh
+git archive origin/main | tar -x -C /tmp/sgm-deploy
+gcloud run deploy swiss-grounding-mcp --source /tmp/sgm-deploy --region europe-west6 --memory 2Gi \
+  --cpu 1 --cpu-boost --max-instances 3 --concurrency 40 --allow-unauthenticated \
+  --set-env-vars 'FORWARDED_ALLOW_IPS=*'
+```
 
 ## Connect an MCP client
 
