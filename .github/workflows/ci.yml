@@ -14,9 +14,11 @@ jobs:
       - run: uv run pytest -q
       - name: MCP smoke test over HTTP
         run: |
-          uv run swiss-grounding-mcp --transport http --port 8765 &
+          .venv/bin/swiss-grounding-mcp --transport http --port 8765 &
+          SERVER=$!
           for i in $(seq 1 30); do curl -sf localhost:8765/health && break; sleep 1; done
-          uv run fastmcp list http://127.0.0.1:8765/mcp
+          .venv/bin/fastmcp list http://127.0.0.1:8765/mcp
+          kill $SERVER
       - name: Live source checks (informational)
         continue-on-error: true
         run: uv run pytest -q -m live
