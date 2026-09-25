@@ -1,6 +1,6 @@
 [project]
 name = "swiss-grounding-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "MCP server with authoritative, cited answers about Switzerland from official federal, cantonal and municipal sources"
 readme = "README.md"
 license = "MIT"
