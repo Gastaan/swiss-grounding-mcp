@@ -229,14 +229,13 @@
  {
   "runner": "claude-web:sonnet",
   "id": "P7",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Diese Frage lässt sich nicht eindeutig beantworten, ohne zu wissen, welches Rechtssystem bzw. welcher Vertrag gemeint ist – die gesetzliche Kündigungsfrist im ersten Dienstjahr unterscheidet sich zwischen Deutschland, Österreich und der Schweiz erheblich, und zusätzlich können Arbeitsvertrag, Tarifvertrag/Kollektivvertrag oder Betriebsvereinbarung abweichende (meist längere) Fristen vorsehen.\n\nKurzer Überblick zur Orientierung:\n\n**Deutschland** – gesetzliche Grundkündigungsfrist während der ersten Beschäftigungsjahre (auch im 1. Jahr) für den **Arbeitgeber**:\n- **4 Wochen zum 15. oder zum Ende eines Kalendermonats**\n- Quelle: **§ 622 Abs. 1 BGB** (Bürgerliches Gesetzbuch)\n- Für den **Arbeitnehmer** gilt in der Regel dieselbe Frist (§ 622 Abs. 1 BGB), sofern der Vertrag nichts anderes regelt.\n- Achtung: Während einer vereinbarten Probezeit (max. 6 Monate) kann die Frist nach § 622 Abs. 3 BGB auf **2 Wochen** verkürzt sein.\n\n**Österreich** – abhängig davon, ob Angestellter oder Arbeiter:\n- Angestellte: i. d. R. **6 Wochen zum Quartalsende** (§ 20 Angestelltengesetz), sofern nicht kürzer vereinbart (max. 1 Monat möglich)\n- Arbeiter: oft im Kollektivvertrag geregelt, da das ABGB hier weniger konkret ist\n\n**Schweiz** – ohne abweichende Vereinbarung:\n- Im ersten Dienstjahr: **1 Monat, jeweils auf Ende eines Monats**\n- Quelle: **Art. 335c Abs. 1 OR** (Obligationenrecht)\n- Während der Probezeit (max. 3 Monate): **7 Tage** (Art. 335b OR)\n\n**Um Ihnen die genau zutreffende Frist mit exakter Quellenangabe nennen zu können, brauche ich noch:**\n1. Welches Land/Rechtssystem betrifft die Frage (DE/AT/CH)?\n2. Geht es um eine gesetzliche Frist oder um einen konkreten Arbeitsvertrag/Tarifvertrag, den Sie mir zeigen können?\n3. Kündigung durch Arbeitgeber oder Arbeitnehmer?\n\nWenn Sie mir das Land nennen (oder den Vertrag/Tarifvertrag zur Verfügung stellen), gebe ich Ihnen die exakte Frist mit dem genauen Gesetzesparagraphen bzw. der Vertragsklausel als Beleg.",
   "tools": [],
   "web_tools": [],
-  "seconds": 42.1,
-  "content_ok": false,
+  "seconds": 18.6,
+  "content_ok": true,
   "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "pass": false
  },
  {
   "runner": "claude-web:sonnet",
@@ -326,97 +325,89 @@
  {
   "runner": "claude-base:sonnet",
   "id": "P4",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Bun di! Eu n'ha strusch infurmaziuns segiras davart il chalender scolastic exact da la Scola Scuol per l'onn 2026 – e na less betg Ta dar datas sbagliadas.\n\nPer savair exact cur ch'èn las vacanzas d'atun 2026 a Scuol, propona jau da controllar:\n\n- **La pagina web da la Scola Scuol** (scuol.ch resp. la pagina da la scola communala), nua ch'il chalender scolastic è publitgà per mintga onn.\n- **Il chalender scolastic dal Chantun Grischun**, publitgà da l'Uffizi per la cultura / educaziun dal Grischun – savens vala per las vischnancas engiadinaisas ina data unifitgada.\n- Alternativamain, cuntanscher directamain la administraziun da la Scola Scuol per telefon u e-mail.\n\nSco regla generala: en il Grischun (era en l'Engiadina Bassa) sun las vacanzas d'atun soleivas la fin da settember/principi d'october fin en october, savens 2 emnas – ma la data exacta per 2026 sto vegnir confermada dal chalender ufficial, cunquai ch'ella po variar in pau dad onn a onn e da vischnanca a vischnanca.\n\nSche Tü völs, poss jau tar Ta gidar a chattar il link direct sche Tü m'accordas dad access ad internet u sche Tü m'inditgeschas la pagina exacta da la scola.",
   "tools": [],
   "web_tools": [],
-  "seconds": 2.5,
+  "seconds": 19.6,
   "content_ok": false,
   "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P5",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Non ho accesso a dati aggiornati in tempo reale, quindi non posso darti con certezza il valore esatto e attuale del **tasso ipotecario di riferimento** (Referenzzinssatz) applicabile agli affitti in Svizzera alla data odierna (25 settembre 2026).\n\nAlcune informazioni utili nel frattempo:\n\n- Il tasso di riferimento viene calcolato e pubblicato trimestralmente dall'**Ufficio federale dell'abitazione (UFAB/BWO)**, basandosi sul tasso medio ponderato di tutte le ipoteche in Svizzera.\n- Fino al mio periodo di aggiornamento (inizio 2026), il tasso si attestava all'**1,50%**, dopo una serie di ribassi avvenuti tra il 2024 e il 2025 (era salito fino al 1,75% nel 2023-2024 per poi scendere).\n- Il tasso viene rivisto e pubblicato di norma **all'inizio di marzo, giugno, settembre e dicembre**.\n\n**Come verificare il valore esatto e attuale:**\n1. Sito ufficiale dell'UFAB: **www.bwo.admin.ch** (sezione \"Tasso di riferimento per le pigioni\")\n2. Comunicati stampa dell'Ufficio federale dell'abitazione\n3. Siti di associazioni inquilini (ASI/Mieterverband) o proprietari (HEV), che pubblicano tempestivamente ogni variazione\n\nSe vuoi, posso aiutarti a calcolare l'impatto di un'eventuale variazione del tasso sul tuo affitto (le regole di adeguamento sono standardizzate), una volta che mi dai il valore attuale verificato e quello del tuo contratto di locazione.",
   "tools": [],
   "web_tools": [],
-  "seconds": 1.9,
+  "seconds": 14.0,
   "content_ok": false,
-  "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "cited": true,
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P6",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "# Annonce d'arrivée en Suisse (Lausanne et Berne)\n\nEn Suisse, toute personne qui s'installe dans une commune doit s'annoncer au contrôle des habitants **dans un délai de 14 jours** après son arrivée (que vous soyez suisse ou étranger). La procédure est similaire partout, mais chaque commune/canton a son propre système.\n\n## À Lausanne (canton de Vaud)\n\n1. **Pré-annonce en ligne** (recommandé, gagne du temps) : via le portail **e-guichet.ch** (guichet cantonal vaudois) ou directement sur le site de la Ville de Lausanne — rubrique \"Contrôle des habitants\".\n2. **Rendez-vous / passage au guichet** : le Contrôle des habitants de Lausanne se trouve à la **Place Chauderon 7**. Certaines démarches nécessitent un passage physique avec les originaux.\n3. **Documents à apporter** :\n   - Pièce d'identité ou passeport valide\n   - Contrat de bail (ou attestation du propriétaire/logeur)\n   - Pour les étrangers : acte de naissance, éventuellement acte de mariage, photo passeport, et le formulaire de demande de permis de séjour (si vous venez de l'étranger)\n   - Pour un déménagement interne à la Suisse : attestation de départ de l'ancienne commune\n4. **Émoluments** : quelques francs pour l'attestation d'établissement (variable).\n\n## À Berne (Berne-Ville)\n\n1. **Annonce en ligne** : Berne participe au portail national **eUmzug** (eumzug.ch), qui permet d'annoncer son arrivée (et son départ) directement en ligne pour de nombreuses communes suisses, y compris Berne.\n2. **Einwohnerdienste (Service des habitants) de la Ville de Berne** : si un passage est nécessaire, c'est au **Predigergasse 5** (ou selon le quartier).\n3. **Documents similaires** :\n   - Pièce d'identité/passeport\n   - Contrat de bail\n   - Pour étrangers : documents d'état civil, permis de travail/séjour le cas échéant\n4. Berne est bilingue administrativement, mais les services fonctionnent surtout en allemand — le site propose souvent une version française.\n\n## Conseils généraux\n\n- **Délai** : ne dépassez pas les 14 jours, sous peine d'amende potentielle.\n- **Attestation de départ** : si vous veniez d'une autre commune suisse, demandez d'abord une attestation de départ (*annonce de départ*) auprès de votre ancienne commune — cela accélère l'annonce d'arrivée.\n- **Étrangers hors UE/AELE** : contactez aussi le Service de la population (SPOP à Lausanne / Office de la migration à Berne) pour le permis de séjour, en parallèle du contrôle des habitants.\n- **Assurance maladie** : pensez à vous affilier dans les 3 mois suivant l'arrivée en Suisse si ce n'est pas déjà fait.\n\nVoulez-vous que je vous donne les liens directs des sites officiels (Lausanne et Berne) ou que je détaille la procédure spécifique selon votre statut (citoyen suisse, ressortissant UE/AELE, ou hors UE) ?",
   "tools": [],
   "web_tools": [],
-  "seconds": 2.1,
-  "content_ok": false,
+  "seconds": 25.4,
+  "content_ok": true,
   "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P7",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Diese Frage lässt sich ohne weitere Angaben nicht eindeutig beantworten – ich habe in diesem Gespräch keinen Vertrag oder ein anderes Dokument vorliegen, auf das ich mich beziehen könnte, und der Arbeitsverhältnis-Begriff „Dienstjahr\" wird in unterschiedlichen Rechtsordnungen (Deutschland, Österreich, Schweiz) mit jeweils anderen Fristen und Gesetzesstellen verwendet. Damit ich Ihnen die **exakte** Quelle nennen kann, brauche ich eine Präzisierung:\n\n1. **Geht es um einen konkreten Vertrag** (Arbeitsvertrag, individuelle Vereinbarung)? Falls ja: Können Sie mir den Text/das Dokument zukommen lassen oder den Dateipfad nennen? Dann suche ich die genaue Klausel heraus.\n2. **Oder geht es um die gesetzliche Regelung** – und wenn ja, für welches Land?\n   - **Schweiz (OR):** Art. 335c Abs. 1 OR – im ersten Dienstjahr gilt eine Kündigungsfrist von **1 Monat** auf Ende eines Monats.\n   - **Österreich (Angestelltengesetz):** § 20 AngG – bei Kündigung durch den Arbeitgeber im ersten Dienstjahr grundsätzlich **6 Wochen** zum Quartalsende (sofern nichts anderes vereinbart ist).\n   - **Deutschland (BGB):** § 622 Abs. 1 BGB – Grundkündigungsfrist **4 Wochen** zum 15. oder zum Monatsende; die gestaffelten Verlängerungen nach § 622 Abs. 2 BGB gelten erst ab 2 Jahren Betriebszugehörigkeit und primär für Kündigungen durch den Arbeitgeber.\n\nSagen Sie mir bitte, welcher Fall gemeint ist (Land bzw. konkretes Dokument), dann nenne ich Ihnen die Frist mit der exakten Fundstelle.",
   "tools": [],
   "web_tools": [],
-  "seconds": 1.8,
-  "content_ok": false,
+  "seconds": 23.6,
+  "content_ok": true,
   "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P8",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Ich habe hier leider keinen Zugriff auf aktuelle Internetdaten, und mein Wissensstand reicht nur bis Januar 2026 – seitdem sind (Stand heute, 25.09.2026) bereits mehrere reguläre Anpassungstermine verstrichen (der hypothekarische Referenzzinssatz wird vom Bundesamt für Wohnungswesen BWO jeweils Anfang März, Juni, September und Dezember neu festgelegt). Eine verlässliche aktuelle Zahl kann ich dir daher nicht nennen.\n\nNach meinem letzten Kenntnisstand lag der Referenzzinssatz bei **1,25 %** (gültig seit Juni 2025, unverändert auch im September 2025). Ob und wie er sich seither verändert hat, kann ich nicht sagen.\n\nFür die aktuell gültige, verbindliche Zahl empfehle ich:\n- **BWO (Bundesamt für Wohnungswesen)**: bwo.admin.ch\n- Alternativ Vergleichsportale wie **comparis.ch** oder **moneyland.ch**, die den Wert jeweils zeitnah veröffentlichen.\n\nFalls du möchtest, kann ich dir bei der Berechnung einer Mietzinsanpassung helfen, sobald du mir den aktuellen Referenzzinssatz nennst.",
   "tools": [],
   "web_tools": [],
-  "seconds": 2.3,
+  "seconds": 20.4,
   "content_ok": false,
-  "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "cited": true,
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P9",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "Ich habe leider keinen Zugriff auf eine Live-Websuche und kann die genauen Daten der Herbstferien 2026 für die Stadt Bern daher nicht mit Sicherheit aus dem Gedächtnis bestätigen – Schulferientermine werden von der Stadt/dem Kanton oft Jahre im Voraus festgelegt, können sich aber ändern oder ich könnte mich irren.\n\n**Meine Empfehlung:** Bitte die verbindlichen Daten direkt hier nachschauen:\n- Stadt Bern (Schulen Bern): **www.bern.ch/schulferien**\n- Erziehungsdirektion Kanton Bern: **www.erz.be.ch** (Suche „Ferienplan Volksschule“)\n\nZur groben Orientierung: Die Herbstferien im Kanton Bern liegen erfahrungsgemäss meist in der ersten Oktoberhälfte und dauern rund zwei Wochen. Für ein verlässliches Datum 2026 solltest du dich aber auf die offizielle Quelle stützen, da ich das Risiko einer falschen Angabe nicht eingehen möchte.\n\nFalls dir eine ungefähre Web-Suche helfen würde, sag Bescheid – ich kann dir auch eine kurze Übersicht zusammenstellen, sobald ich Zugriff auf eine Suchfunktion habe, oder du fragst direkt beim Schulsekretariat Bern nach.",
   "tools": [],
   "web_tools": [],
-  "seconds": 2.1,
+  "seconds": 28.3,
   "content_ok": false,
-  "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "cited": true,
+  "pass": false
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P10",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "En Suisse, toute personne qui s'installe dans une nouvelle commune doit s'annoncer dans les **14 jours** suivant son arrivée.\n\nPour Lausanne, cela se fait auprès du :\n\n**Contrôle des habitants de Lausanne**\n📍 Place Chauderon 9, 1003 Lausanne (Bâtiment de la Pontaise / Chauderon, selon les services)\n📞 Renseignements et prise de rendez-vous via le site officiel de la Ville de Lausanne (lausanne.ch)\n\n**Démarches possibles :**\n1. **En ligne** — via la plateforme cantonale vaudoise **e-guichet** (guichetcartographique / etat-civil en ligne du Canton de Vaud), qui permet souvent de faire une pré-annonce ou l'annonce complète selon votre situation.\n2. **Sur place**, avec rendez-vous (souvent nécessaire), au guichet du Contrôle des habitants.\n\n**Documents généralement demandés :**\n- Pièce d'identité ou passeport valide (+ pour les étrangers : autorisation de séjour/permis, ou passeport pour une première demande)\n- Acte d'origine ou livret de famille (pour les Suisses)\n- Contrat de bail ou attestation du logeur\n- Pour les couples/familles : livret de famille, acte de mariage, etc. selon le cas\n\n⚠️ Bon à savoir :\n- Si vous arrivez d'une **autre commune suisse**, vous devez aussi vous annoncer comme \"partant\" dans votre ancienne commune.\n- Si vous arrivez de **l'étranger**, la démarche est liée aussi à l'obtention/l'enregistrement de votre permis de séjour (en lien avec le Service de la population du canton, le SPOP).\n\nJe vous recommande de vérifier les modalités exactes (horaires, prise de rendez-vous obligatoire, documents précis) directement sur **lausanne.ch**, rubrique « Contrôle des habitants », car les procédures peuvent évoluer.\n\nVoulez-vous que je vous aide à trouver le lien exact ou à préparer la liste des documents selon votre situation (suisse, ressortissant UE, extra-UE, etc.) ?",
   "tools": [],
   "web_tools": [],
-  "seconds": 2.2,
-  "content_ok": false,
-  "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "seconds": 13.7,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
  },
  {
   "runner": "claude-base:sonnet",
   "id": "P11",
-  "answer": "You've hit your monthly spend limit · raise it at claude.ai/settings/usage?from=cc_cli_limit_message · your session limit resets 12:30pm (Europe/Zurich)",
+  "answer": "In Svizzera, il tasso ipotecario di riferimento per gli affitti (Referenzzinssatz / taux d'intérêt de référence / tasso d'interesse di riferimento) viene pubblicato trimestralmente dall'**Ufficio federale dell'abitazione (UFAB)**, in tedesco **Bundesamt für Wohnungswesen (BWO)**, che dipende dal Dipartimento federale dell'economia, della formazione e della ricerca (DEFR).\n\nAlcuni dettagli utili:\n\n- Il tasso si basa sul volume ponderato dei tassi ipotecari medi comunicati dalle banche svizzere alla Banca nazionale svizzera (BNS), ma è l'UFAB a calcolarlo e pubblicarlo ufficialmente.\n- Viene aggiornato e comunicato trimestralmente (di norma inizio marzo, giugno, settembre, dicembre).\n- Questo tasso è rilevante perché, in base al diritto svizzero della locazione (Codice delle obbligazioni), variazioni del tasso di riferimento possono giustificare richieste di adeguamento (aumento o riduzione) delle pigioni.\n\nSe vuoi, posso indicarti anche dove consultare il valore attuale sul sito ufficiale dell'UFAB (www.bwo.admin.ch).",
   "tools": [],
   "web_tools": [],
-  "seconds": 1.8,
-  "content_ok": false,
-  "cited": false,
-  "pass": false,
-  "error": "usage limit"
+  "seconds": 8.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
  }
 ]

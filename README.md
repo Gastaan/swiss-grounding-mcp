@@ -439,14 +439,14 @@ including ask-back, out-of-scope and not-covered cases) — and writes `eval/res
 The same 28 questions (the 17 above and the organisers' 11 practice cases), Claude Code with Sonnet,
 three ways that differ only in their tools (same neutral assistant prompt, `--assistant-prompt`):
 this server; web search and fetch, no MCP server (`claude-web`); no tools at all (`claude-base`).
-Results: `eval/results/2026-09-25T111906.md` and `…T112059.md`; 9 runs were blocked by the account's
-spend limit and are left out, not counted as wrong.
+Results: `eval/results/2026-09-25T111906.md` and `…T112059.md` (practice runs first blocked by the
+account's spend limit were rerun, so every mode has all 28 answers).
 
-| Mode | 17 questions | Practice cases | Avg calls | Avg seconds | Links to official Swiss authorities |
+| Mode | 17 questions | Practice cases | Avg calls (17 q.) | Avg seconds (17 q.) | Links to official Swiss authorities (28 answers) |
 |---|---|---|---|---|---|
 | **With this server** | **16/17** | **11/11** | 1.2 | 14 | **94%** of 34 links |
-| Web search, no server | 11/17 | 7/10 | 2.4 searches | 28 | 72% of 67 links (others: Wikipedia, bonus.ch, bern.com, jurawelt.com…) |
-| Model knowledge only | 6/17 | 1/3 | 0 | 15 | 1 link in 20 answers |
+| Web search, no server | 11/17 | 7/11 | 2.4 searches | 28 | 72% of 67 links (others: Wikipedia, bonus.ch, bern.com, jurawelt.com…) |
+| Model knowledge only | 6/17 | 3/11 | 0 | 15 | 1 link in 28 answers |
 
 Reading the answers: web search often reaches the right figure but mixes in comparison sites, news and
 tourism pages, rounds official figures ("circa 45.000" inhabitants of Bellinzona instead of the FSO's
