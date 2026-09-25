@@ -12,7 +12,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://soheillotfi-swiss-grounding-mcp.hf.space/mcp"
+      "url": "https://swiss-grounding-mcp-542630986415.europe-west6.run.app/mcp"
     }
   ]
 }
