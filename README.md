@@ -134,13 +134,24 @@ The organisers' [practice cases](https://github.com/Swiss-ai-Weeks/swisscom-2026
 | Practice case | Behaviour |
 |---|---|
 | Cardboard collection, no place given | asks only for the municipality (`needs_context`), never a date |
-| Geneva school holidays 2026 | cites `ge.ch/vacances-scolaires-2026-2027` first, no ask-back |
+| Geneva school holidays 2026 | cites `ge.ch/vacances-scolaires-2026-2027` first, no ask-back; periods the official page confirms are marked `on_official_page` |
 | Licence fee in Konstanz | "Konstanz is in Germany, Swiss sources do not apply" (`not_covered`) |
 | Romansh: autumn holidays in Scuol | 10–25 Oct 2026, citing the Scuol school's own 2026/27 plan |
 | Current reference interest rate | BWO page, 1.25 % with its effective date, cached at most 6 h |
-| Registering on arrival in Lausanne, then Bern | Bern: the French question gets a hint that Bern publishes in German; searching again in German finds the city's own page (`bern.ch/themen/zuzug-umzug-wegzug`). Lausanne: **weak**, its residents' office page is not indexed and the federal ch.ch page ranks too low |
+| Registering on arrival in Lausanne, then Bern | Bern: the French question gets a hint that Bern publishes in German; searching again in German finds the city's own page (`bern.ch/themen/zuzug-umzug-wegzug`). Lausanne: the city's residents' office page is not indexed, so answers rest on the federal ch.ch page and the canton's pages |
 | Which source supports a deadline | every citation carries the verbatim passage (`excerpt`) |
 | Source unavailable | a cached copy is labelled with its date (`data.stale_sources`), otherwise `source_error` with the link |
+
+**End to end** (`scripts/e2e_eval.py --questions eval/practice_questions.json`, Claude Code, answers
+also reviewed by hand against the pack's criteria, `eval/results/2026-09-25T0704.md`): Sonnet 11/11,
+Haiku 10/11. The practice cases are in `eval/practice_questions.json`, together with the pack's three
+extra sample questions and a source-failure case (the server offline with an empty cache: both models
+said the housing office was unreachable, gave its link and did not guess a rate). Haiku's miss: the
+notice-period answer is right but cites ch.ch instead of the article on Fedlex. Reviewing the answers
+found one error the automated checks had passed: the City of Bern's autumn holidays were given with the
+French-speaking schools' dates. Holiday periods are now checked against the official page (the one on
+bern.ch confirms 19 September to 11 October 2026) and school types are named by language, and both
+models answer correctly.
 
 Robots.txt and terms of use are respected by default and both are configurable (`SGM_RESPECT_ROBOTS`,
 `SGM_RESPECT_TERMS`, see Configuration). No credentials are needed.

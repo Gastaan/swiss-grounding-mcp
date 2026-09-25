@@ -30,9 +30,10 @@ DEFAULT_RUNS = [
 ]
 
 
-def claude(model: str, question: str, workdir: Path) -> dict:
+def claude(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
     cfg = workdir / "mcp.json"
-    cfg.write_text(json.dumps({"mcpServers": {"swiss": {"type": "stdio", "command": SERVER[0], "args": []}}}))
+    cfg.write_text(json.dumps({"mcpServers": {"swiss": {"type": "stdio", "command": SERVER[0], "args": [],
+                                                        **({"env": env} if env else {})}}}))
     cmd = ["claude", "-p", question, "--setting-sources", "project", "--model", model, "--mcp-config", str(cfg), "--strict-mcp-config",
            "--allowedTools", "mcp__swiss", "--disallowedTools", "WebSearch", "WebFetch", "Bash", "Read", "Glob", "Grep",
            "--output-format", "stream-json", "--verbose", "--no-session-persistence"]
@@ -53,10 +54,11 @@ def claude(model: str, question: str, workdir: Path) -> dict:
     return {"answer": answer, "tools": tools}
 
 
-def opencode(model: str, question: str, workdir: Path) -> dict:
+def opencode(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
     (workdir / "opencode.json").write_text(json.dumps({
         "$schema": "https://opencode.ai/config.json",
-        "mcp": {"swiss": {"type": "local", "command": SERVER, "enabled": True, "timeout": 30000}},
+        "mcp": {"swiss": {"type": "local", "command": SERVER, "enabled": True, "timeout": 30000,
+                          **({"environment": env} if env else {})}},
         # the evaluation measures this server, so the built-in web and file tools are off
         "tools": {"webfetch": False, "websearch": False, "bash": False, "edit": False, "write": False,
                   "read": False, "grep": False, "glob": False, "list": False, "patch": False, "task": False},
@@ -97,6 +99,7 @@ def score(q: dict, answer: str, tools: list[str] | None = None) -> dict:
     text = answer or ""
     content = any(re.search(p, text, re.I) for p in q["expect_any"]) if q.get("expect_any") else True
     content = content and all(re.search(p, text, re.I) for p in q.get("expect_all", []))
+    content = content and not any(re.search(p, text, re.I) for p in q.get("expect_none", []))
     cited = any(re.search(p, text, re.I) for p in q["expect_cite"]) if q.get("expect_cite") else None
     if q["behavior"] == "ask_back":
         content = content and bool(ASK_REQUEST.search(text))
@@ -118,15 +121,15 @@ def run_one(runner: str, q: dict) -> dict:
     with tempfile.TemporaryDirectory() as tmp:
         started = time.monotonic()
         try:
-            res = RUNNERS[kind](model, q["question"], Path(tmp))
+            res = RUNNERS[kind](model, q["question"], Path(tmp), q.get("server_env"))
         except subprocess.TimeoutExpired:
             res = {"answer": "", "tools": [], "error": "timeout"}
         res["seconds"] = round(time.monotonic() - started, 1)
     return {"runner": runner, "id": q["id"], **res, **score(q, res["answer"], res["tools"])}
 
 
-def load_questions() -> list[dict]:
-    questions = json.loads((ROOT / "eval" / "questions.json").read_text())
+def load_questions(path: Path = ROOT / "eval" / "questions.json") -> list[dict]:
+    questions = json.loads(path.read_text())
     for q in questions:
         q["expect_any"] = [p.replace("{bellinzona_population}", population_pattern("Bellinzona"))
                            for p in q.get("expect_any", [])]
@@ -138,10 +141,12 @@ def main() -> None:
     ap.add_argument("--runs", default=",".join(DEFAULT_RUNS))
     ap.add_argument("--only", default="")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--questions", default=str(ROOT / "eval" / "questions.json"),
+                    help="question file (e.g. eval/practice_questions.json)")
     ap.add_argument("--rescore", metavar="RESULTS_JSON",
                     help="apply the current checks to recorded answers (no model calls) and rewrite the report")
     args = ap.parse_args()
-    questions = load_questions()
+    questions = load_questions(Path(args.questions))
     if args.rescore:
         path = Path(args.rescore)
         results = json.loads(path.read_text())

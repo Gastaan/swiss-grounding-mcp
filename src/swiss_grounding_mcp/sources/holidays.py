@@ -28,7 +28,13 @@ async def _group_names(lang: str) -> dict[str, str]:
                                        ttl=30 * http.DAY, check_robots=False)
     except http.FetchError:
         return {}
-    return {g["code"]: _name(g, lang) for g in groups if g.get("code")}
+    names = {g["code"]: _name(g, lang) for g in groups if g.get("code")}
+    # canton Bern: OpenHolidays calls both groups "compulsory schools" in German; say which is which
+    if "CH-BE-EO" in names:
+        names["CH-BE-EO"] = "École obligatoire (French-speaking schools, Bernese Jura)"
+    if "CH-BE-VS" in names:
+        names["CH-BE-VS"] = "Volksschulen (German-speaking schools)"
+    return names
 
 
 def _official_page(jurisdictions: list[str], year: int) -> Citation | None:
@@ -48,6 +54,30 @@ def _official_page(jurisdictions: list[str], year: int) -> Citation | None:
     return Citation(title=best["title"], url=best["url"], publisher=best["publisher"], level=best["level"],
                     jurisdiction=best["jurisdiction"], retrieved_at=best["retrieved_at"],
                     excerpt=best["body"][:500], valid_for=str(year))
+
+
+MONTHS = {  # month names as official calendars write them
+    1: ("januar", "janvier", "gennaio", "schaner"), 2: ("februar", "février", "febbraio", "favrer"),
+    3: ("märz", "mars", "marzo", "mars"), 4: ("april", "avril", "aprile", "avrigl"), 5: ("mai", "mai", "maggio", "matg"),
+    6: ("juni", "juin", "giugno", "zercladur"), 7: ("juli", "juillet", "luglio", "fanadur"),
+    8: ("august", "août", "agosto", "avust"), 9: ("september", "septembre", "settembre", "settember"),
+    10: ("oktober", "octobre", "ottobre", "october"), 11: ("november", "novembre", "novembre", "november"),
+    12: ("dezember", "décembre", "dicembre", "december"),
+}
+
+
+def _date_pattern(iso: str) -> re.Pattern:
+    """A date as calendars print it: 19.09.2026, 19.9., 19. September, 19 octobre, 10 d'october."""
+    y, m, d = (int(x) for x in iso.split("-"))
+    names = "|".join(re.escape(n) for n in MONTHS[m])
+    return re.compile(rf"\b0?{d}\.\s?0?{m}\.|\b0?{d}\.?\s+(?:d')?(?:{names})\b", re.I)
+
+
+def _official_text(url: str) -> str:
+    with search._connect() as db:
+        rows = db.execute("SELECT passages.body FROM passages JOIN pages p ON p.id = passages.page_id "
+                          "WHERE p.url = ?", (url,)).fetchall()
+    return "\n".join(r[0] for r in rows)
 
 
 def _name(entry: dict, lang: str) -> str:
@@ -120,6 +150,12 @@ async def holidays(
                                   level="semi-official", jurisdiction="CH", valid_for=str(year)))
     if official:  # the responsible authority's own calendar leads; the aggregated data supports it
         citations.insert(0, official)
+        # mark the periods whose dates the official page itself shows, and put them first
+        text = await asyncio.to_thread(_official_text, official.url)
+        for item in items:
+            if _date_pattern(item["start"]).search(text) and _date_pattern(item["end"]).search(text):
+                item["on_official_page"] = True
+        items.sort(key=lambda i: not i.get("on_official_page"))
     if muni and muni.website:
         citations.append(Citation(title=f"Official website of {muni.name}", url=muni.website,
                                   publisher=f"Municipality of {muni.name}", level="municipal",
@@ -129,9 +165,13 @@ async def holidays(
                           citations=citations,
                           guidance="Point the user to the official list (EDK / municipality) instead of guessing.")
     guidance = "Give the dates for the requested period and cite the sources."
+    confirmed = [i for i in items if i.get("on_official_page")]
     if official:
         guidance += (f" The first citation is the responsible authority's own calendar ({official.publisher}); "
                      "cite it, and check its excerpt or read_official_page(url) if the dates must be confirmed.")
+    if confirmed and len(confirmed) < len(items):
+        guidance += (" Periods marked on_official_page appear on that official page: where periods of the same "
+                     "name differ, give those dates for this place.")
     types = {i.get("school_type") for i in items if i.get("school_type")}
     if len(types) > 1:
         guidance += (f" Dates differ by school type ({'; '.join(sorted(types))}), e.g. German- and French-speaking "

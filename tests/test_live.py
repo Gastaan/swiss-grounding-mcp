@@ -102,3 +102,6 @@ async def test_holidays_label_school_types(client):
     autumn = [h for h in r["data"]["holidays"] if h["name"] == "Herbstferien"]
     assert len({h.get("school_type") for h in autumn}) == len(autumn) > 1
     assert "bern.ch" in r["citations"][0]["url"]
+    # the City of Bern's own page confirms the German-speaking schools' dates (19.09.-11.10.2026)
+    confirmed = [h for h in autumn if h.get("on_official_page")]
+    assert [(h["start"], h["end"]) for h in confirmed] == [("2026-09-19", "2026-10-11")]
