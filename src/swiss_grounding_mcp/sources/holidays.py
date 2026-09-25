@@ -167,11 +167,14 @@ async def holidays(
     guidance = "Give the dates for the requested period and cite the sources."
     confirmed = [i for i in items if i.get("on_official_page")]
     if official:
-        guidance += (f" The first citation is the responsible authority's own calendar ({official.publisher}); "
-                     "cite it, and check its excerpt or read_official_page(url) if the dates must be confirmed.")
+        guidance += f" The first citation is the responsible authority's own calendar ({official.publisher}); cite it."
+        # confirmed dates need no second call: an extra read_official_page costs the user a model round trip
+        guidance += (" Periods marked on_official_page are confirmed by that page: answer from them directly, "
+                     "no further call is needed." if confirmed else
+                     " None of these dates could be matched on that page: if the user needs certainty, "
+                     "read_official_page(url) shows the page itself.")
     if confirmed and len(confirmed) < len(items):
-        guidance += (" Periods marked on_official_page appear on that official page: where periods of the same "
-                     "name differ, give those dates for this place.")
+        guidance += (" Where periods of the same name differ, give the dates marked on_official_page for this place.")
     types = {i.get("school_type") for i in items if i.get("school_type")}
     if len(types) > 1:
         guidance += (f" Dates differ by school type ({'; '.join(sorted(types))}), e.g. German- and French-speaking "
