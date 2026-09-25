@@ -20,10 +20,10 @@ from mcp.types import TextContent
 from pydantic import Field
 from starlette.middleware import Middleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse
 
 from . import http, models, semantic
-from .config import VERSION, settings
+from .config import REPO_URL, VERSION, settings
 from .coverage import coverage_report
 from .guards import BearerAuth, RateLimit
 from .places import register, resolve
@@ -368,6 +368,22 @@ async def health(_: Request) -> JSONResponse:
         "places_built": register()["meta"]["built"], "premium_years": premiums.available_years(),
         "search": semantic.status(), "sources_with_errors": sorted(h for h, s in sources.items() if s["errors"]),
     })
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def index(request: Request) -> HTMLResponse:
+    """A short page for people who open the server's address in a browser (e.g. a hosted Space)."""
+    endpoint = str(request.base_url).rstrip("/") + "/mcp"
+    return HTMLResponse(f"""<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Swiss Grounding MCP</title>
+<style>body{{font:16px/1.5 system-ui,sans-serif;max-width:44rem;margin:2rem auto;padding:0 1rem;color:#16181b}}
+code{{background:#f1f2f0;padding:.1em .3em;border-radius:3px}}pre{{background:#f1f2f0;padding:.8rem;overflow-x:auto}}</style>
+<h1>Swiss Grounding MCP</h1>
+<p>An MCP server with authoritative, cited answers about Switzerland from official federal, cantonal and
+municipal sources, in German, French, Italian, Romansh and English. Version {VERSION}.</p>
+<p>MCP endpoint (Streamable HTTP): <code>{endpoint}</code></p>
+<pre>claude mcp add --transport http swiss {endpoint}</pre>
+<p><a href="/health">Health</a> · <a href="{REPO_URL}">Source, coverage and limitations</a></p>""")
 
 
 @mcp.custom_route("/metrics", methods=["GET"])

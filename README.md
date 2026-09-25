@@ -42,6 +42,23 @@ reachable from outside a trusted network, add `-e SGM_AUTH_TOKEN=<secret>` (see 
 
 Without cloning (keyword search): `uvx --from git+https://github.com/Gastaan/swiss-grounding-mcp swiss-grounding-mcp`.
 
+## Hosted endpoint
+
+A public instance runs on a Hugging Face Space, built from this repository at a pinned commit:
+
+- MCP endpoint (Streamable HTTP): `https://soheillotfi-swiss-grounding-mcp.hf.space/mcp`
+- Health: `https://soheillotfi-swiss-grounding-mcp.hf.space/health`
+- Space: https://huggingface.co/spaces/soheillotfi/swiss-grounding-mcp
+
+```sh
+claude mcp add --transport http swiss https://soheillotfi-swiss-grounding-mcp.hf.space/mcp
+```
+
+No token is needed (read-only public information; rate-limited per client). A scheduled workflow
+(`.github/workflows/hosted-check.yml`) checks it every 6 hours, which also keeps the free Space awake.
+It is listed in the official MCP Registry as `io.github.soheil1lotfi/swiss-grounding-mcp` (`server.json`).
+The code in this repository runs locally with the setup below; the Space runs the same commit.
+
 ## Connect an MCP client
 
 Use absolute paths. Replace `/path/to/swiss-grounding-mcp` with your clone.

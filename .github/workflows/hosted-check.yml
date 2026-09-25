@@ -1,0 +1,24 @@
+name: hosted-check
+# Pings the hosted instance (Hugging Face Space) every 6 hours: keeps the free Space from sleeping
+# (it sleeps after 48 h without traffic) and fails visibly if the public endpoint stops answering.
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+env:
+  BASE: https://soheillotfi-swiss-grounding-mcp.hf.space
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health (waits up to 5 minutes for a Space that was asleep)
+        run: |
+          for i in $(seq 1 30); do curl -sf "$BASE/health" && exit 0; sleep 10; done
+          exit 1
+      - name: MCP answers
+        run: |
+          curl -sf -X POST "$BASE/mcp" -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q search_official_info

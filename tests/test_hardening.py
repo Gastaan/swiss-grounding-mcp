@@ -330,3 +330,9 @@ async def test_no_hint_when_the_question_is_in_the_places_language(client, monke
     monkeypatch.setattr(settings, "semantic", "off")
     r = await call(client, "search_official_info", query="Comment annoncer mon arrivée?", place="Lausanne")
     assert "place_languages" not in r["data"]
+
+
+async def test_landing_page_names_the_mcp_endpoint():
+    async with _asgi(server.http_app()) as c:
+        r = await c.get("/")
+    assert r.status_code == 200 and "http://127.0.0.1:8000/mcp" in r.text
