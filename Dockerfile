@@ -1,8 +1,7 @@
 FROM python:3.13-slim
 LABEL io.modelcontextprotocol.server.name="io.github.soheil1lotfi/swiss-grounding-mcp" \
       org.opencontainers.image.source="https://github.com/Gastaan/swiss-grounding-mcp" \
-      org.opencontainers.image.description="MCP server: cited answers about Switzerland from official sources" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.description="MCP server: cited answers about Switzerland from official sources"
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /uvx /bin/
 # HOST=0.0.0.0: inside a container the server must listen on all interfaces (the default is localhost).
 # Set SGM_AUTH_TOKEN when the port is reachable from outside a trusted network.
@@ -12,7 +11,7 @@ WORKDIR /app
 # the unprivileged user that runs the server (created first, so files can be handed over in the layer
 # that creates them; a later chown would copy them into a second layer)
 RUN useradd --system --uid 10001 --no-create-home sgm
-COPY pyproject.toml uv.lock README.md LICENSE ./
+COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --locked --no-dev --extra semantic --no-install-project
 COPY src ./src
 # install the project (with hybrid search), unpack the shipped search index and download the embedding
