@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="562" viewBox="0 0 1200 562" role="img" aria-labelledby="t d">
+<title id="t">Swiss Grounding MCP architecture</title>
+<desc id="d">An AI assistant asks in Italian for the cheapest health insurance premium in Lugano. It makes one tool call to Swiss Grounding MCP, which picks one of 13 read-only tools, resolves Lugano to CH-TI-5192, fetches the official data politely from federal, cantonal and municipal sources, and returns a cited answer: CHF 449.90 a month, source FOPH, priminfo.admin.ch.</desc>
+<rect width="1200" height="562" rx="20" fill="#FFFFFF" stroke="#E1E9EF" stroke-width="1.5"/>
+<rect x="24" y="24" width="300" height="452" rx="16" fill="#F1F6F9"/>
+<circle cx="66" cy="68" r="22" fill="#FFFFFF"/>
+<g transform="translate(54.45 56.45) scale(0.9625)" fill="none" stroke="#08707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></g>
+<text x="100" y="65" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="21" font-weight="700" fill="#0B1E33" text-anchor="start">AI assistant</text>
+<text x="100" y="87" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">any MCP client + LLM</text>
+<rect x="42" y="100" width="264" height="192" rx="12" fill="#FFFFFF" stroke="#E1E9EF" stroke-width="1.5"/>
+<rect x="58" y="116" width="35.4" height="24" rx="12.0" fill="#D3EEF0"/>
+<text x="75.7" y="133.04" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="700" fill="#08707A" text-anchor="middle">IT</text>
+<text x="106" y="133" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#6B7B8A" text-anchor="start">asked in Italian</text>
+<text x="58" y="170" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="400" fill="#0B1E33" text-anchor="start" font-style="italic">“Il premio più basso a</text>
+<text x="58" y="192" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="400" fill="#0B1E33" text-anchor="start" font-style="italic">Lugano, 30 anni,</text>
+<text x="58" y="214" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="400" fill="#0B1E33" text-anchor="start" font-style="italic">franchigia 2500?”</text>
+<line x1="58" y1="234" x2="290" y2="234" stroke="#E1E9EF" stroke-width="1.5"/>
+<text x="58" y="257" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="400" fill="#6B7B8A" text-anchor="start">Lowest premium in Lugano,</text>
+<text x="58" y="277" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="400" fill="#6B7B8A" text-anchor="start">age 30, CHF 2,500 deductible?</text>
+<rect x="42" y="314" width="264" height="132" rx="12" fill="#FFFFFF" stroke="#0B8F9C" stroke-width="2"/>
+<text x="60" y="351" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif"><tspan font-size="24" font-weight="700" fill="#0B1E33">CHF 449.90</tspan><tspan font-size="17" fill="#3A4B5B"> a month</tspan></text>
+<text x="60" y="374" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">Agrisano · 2026 premiums</text>
+<line x1="60" y1="390" x2="288" y2="390" stroke="#E1E9EF" stroke-width="1.5"/>
+<text x="60" y="413" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="start">Source: FOPH</text>
+<text x="60" y="433" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#08707A" text-anchor="start">priminfo.admin.ch</text>
+<rect x="420.0" y="24" width="360" height="452" rx="16" fill="#0B1E33"/>
+<rect x="442.0" y="50" width="36" height="36" rx="7.875" fill="#D52B1E"/>
+<rect x="456.625" y="56.75" width="6.75" height="22.5" rx="0" fill="#FFFFFF"/>
+<rect x="448.75" y="64.625" width="22.5" height="6.75" rx="0" fill="#FFFFFF"/>
+<text x="492.0" y="65" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="21" font-weight="700" fill="#FFFFFF" text-anchor="start">Swiss Grounding MCP</text>
+<text x="492.0" y="87" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#8FA3B8" text-anchor="start">stdio · Streamable HTTP</text>
+<rect x="436.0" y="126" width="328" height="64" rx="10" fill="#FFFFFF" fill-opacity="0.08"/>
+<g transform="translate(452.0 146.0) scale(1.0000)" fill="none" stroke="#7FD8E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></g>
+<text x="490.0" y="153" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="start">13 read-only tools</text>
+<text x="490.0" y="174" font-size="15" text-anchor="start"><tspan font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" fill="#C9D6E2" font-weight="400">picks </tspan><tspan font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" fill="#7FD8E0" font-weight="400" font-size='14'>health_insurance_premiums</tspan></text>
+<rect x="436.0" y="200" width="328" height="64" rx="10" fill="#FFFFFF" fill-opacity="0.08"/>
+<g transform="translate(452.0 220.0) scale(1.0000)" fill="none" stroke="#7FD8E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></g>
+<text x="490.0" y="227" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="start">Place resolver</text>
+<text x="490.0" y="248" font-size="15" text-anchor="start"><tspan font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" fill="#C9D6E2" font-weight="400">Lugano → </tspan><tspan font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" fill="#7FD8E0" font-weight="400" font-size='14'>CH-TI-5192</tspan></text>
+<rect x="436.0" y="274" width="328" height="64" rx="10" fill="#FFFFFF" fill-opacity="0.08"/>
+<g transform="translate(452.0 294.0) scale(1.0000)" fill="none" stroke="#7FD8E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></g>
+<text x="490.0" y="301" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="start">Source adapters</text>
+<text x="490.0" y="322" font-size="15" text-anchor="start"><tspan font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" fill="#C9D6E2" font-weight="400">search index · APIs · open data</tspan></text>
+<rect x="436.0" y="348" width="328" height="64" rx="10" fill="#FFFFFF" fill-opacity="0.08"/>
+<g transform="translate(452.0 368.0) scale(1.0000)" fill="none" stroke="#7FD8E0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></g>
+<text x="490.0" y="375" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF" text-anchor="start">Polite fetching</text>
+<text x="490.0" y="396" font-size="15" text-anchor="start"><tspan font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" fill="#C9D6E2" font-weight="400">robots.txt · cache · fallback</tspan></text>
+<line x1="436.0" y1="426" x2="764.0" y2="426" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1"/>
+<g transform="translate(440.0 437) scale(0.8333)" fill="none" stroke="#8FA3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></g>
+<text x="470.0" y="453" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#8FA3B8" text-anchor="start">Live on Google Cloud Run · Zürich</text>
+<rect x="876" y="24" width="300" height="452" rx="16" fill="#F1F6F9"/>
+<circle cx="918" cy="68" r="22" fill="#FFFFFF"/>
+<g transform="translate(906.45 56.45) scale(0.9625)" fill="none" stroke="#08707A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></g>
+<text x="952" y="65" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="21" font-weight="700" fill="#0B1E33" text-anchor="start">Official sources</text>
+<text x="952" y="87" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">the responsible authority</text>
+<rect x="894" y="126" width="264" height="96" rx="12" fill="#FFFFFF" stroke="#E1E9EF" stroke-width="1.5"/>
+<text x="910" y="156" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#0B1E33" text-anchor="start">Federal</text>
+<rect x="1109.9" y="138" width="34.1" height="24" rx="12.0" fill="#D3EEF0"/>
+<text x="1127.0" y="154.68" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" font-weight="700" fill="#08707A" text-anchor="middle">CH</text>
+<text x="910" y="184" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">FOPH · Fedlex · ch.ch</text>
+<text x="910" y="205" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">FSO · SNB · MeteoSwiss</text>
+<rect x="894" y="234" width="264" height="96" rx="12" fill="#FFFFFF" stroke="#E1E9EF" stroke-width="1.5"/>
+<text x="910" y="264" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#0B1E33" text-anchor="start">Cantonal</text>
+<rect x="1085.7" y="246" width="58.3" height="24" rx="12.0" fill="#D3EEF0"/>
+<text x="1114.9" y="262.68" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" font-weight="700" fill="#08707A" text-anchor="middle">CH-TI</text>
+<text x="910" y="292" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">23 cantonal portals</text>
+<text x="910" y="313" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">school calendars</text>
+<rect x="894" y="342" width="264" height="96" rx="12" fill="#FFFFFF" stroke="#E1E9EF" stroke-width="1.5"/>
+<text x="910" y="372" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#0B1E33" text-anchor="start">Municipal</text>
+<rect x="1045.4" y="354" width="98.6" height="24" rx="12.0" fill="#D3EEF0"/>
+<text x="1094.7" y="370.68" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="13" font-weight="700" fill="#08707A" text-anchor="middle">CH-TI-5192</text>
+<text x="910" y="400" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">municipal websites</text>
+<text x="910" y="421" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="400" fill="#3A4B5B" text-anchor="start">open-data waste calendars</text>
+<line x1="336" y1="158" x2="397.0" y2="158" stroke="#0B8F9C" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="408.0,158 397.0,151.5 397.0,164.5" fill="#0B8F9C"/>
+<circle cx="372.0" cy="158" r="13" fill="#0B8F9C" stroke="#FFFFFF" stroke-width="2.5"/>
+<text x="372.0" y="163" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">1</text>
+<text x="372.0" y="134" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">tool call</text>
+<line x1="792.0" y1="158" x2="853" y2="158" stroke="#0B8F9C" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="864,158 853,151.5 853,164.5" fill="#0B8F9C"/>
+<circle cx="828.0" cy="158" r="13" fill="#0B8F9C" stroke="#FFFFFF" stroke-width="2.5"/>
+<text x="828.0" y="163" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">2</text>
+<text x="828.0" y="134" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">fetch</text>
+<line x1="864" y1="380" x2="803.0" y2="380" stroke="#0B8F9C" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="792.0,380 803.0,373.5 803.0,386.5" fill="#0B8F9C"/>
+<circle cx="828.0" cy="380" r="13" fill="#0B8F9C" stroke="#FFFFFF" stroke-width="2.5"/>
+<text x="828.0" y="385" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">3</text>
+<text x="828.0" y="416" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">official</text>
+<text x="828.0" y="434" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">data</text>
+<line x1="408.0" y1="380" x2="347" y2="380" stroke="#0B8F9C" stroke-width="2.5" stroke-linecap="round"/>
+<polygon points="336,380 347,373.5 347,386.5" fill="#0B8F9C"/>
+<circle cx="372.0" cy="380" r="13" fill="#0B8F9C" stroke="#FFFFFF" stroke-width="2.5"/>
+<text x="372.0" y="385" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="14" font-weight="700" fill="#FFFFFF" text-anchor="middle">4</text>
+<text x="372.0" y="416" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">cited</text>
+<text x="372.0" y="434" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">answer</text>
+<text x="500.9" y="528" font-family="'Helvetica Neue', Helvetica, Arial, 'Nimbus Sans', 'Liberation Sans', sans-serif" font-size="17" font-weight="700" fill="#0B1E33" text-anchor="end">Every tool returns one contract:</text>
+<rect x="514.9" y="509" width="73.8" height="28" rx="14.0" fill="#D3EEF0"/>
+<text x="551.8" y="528.4" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">status</text>
+<rect x="598.7" y="509" width="83.1" height="28" rx="14.0" fill="#D3EEF0"/>
+<text x="640.2" y="528.4" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">summary</text>
+<rect x="691.8" y="509" width="55.2" height="28" rx="14.0" fill="#D3EEF0"/>
+<text x="719.4" y="528.4" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">data</text>
+<rect x="757.0" y="509" width="101.7" height="28" rx="14.0" fill="#D3EEF0"/>
+<text x="807.9" y="528.4" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">citations</text>
+<rect x="868.7" y="509" width="92.4" height="28" rx="14.0" fill="#D3EEF0"/>
+<text x="914.9" y="528.4" font-family="ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="15" font-weight="700" fill="#08707A" text-anchor="middle">guidance</text>
+</svg>

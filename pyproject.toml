@@ -3,8 +3,6 @@ name = "swiss-grounding-mcp"
 version = "0.1.2"
 description = "MCP server with authoritative, cited answers about Switzerland from official federal, cantonal and municipal sources"
 readme = "README.md"
-license = "MIT"
-license-files = ["LICENSE"]
 authors = [
     { email = "s.hazemi.jebelli@gmail.com" }
 ]
@@ -26,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# hybrid search: local multilingual embeddings merged with keyword search (see README "Search")
+# hybrid search: local multilingual embeddings merged with keyword search (see docs/search.md)
 semantic = ["fastembed>=0.8", "numpy>=2"]
 
 [project.urls]
