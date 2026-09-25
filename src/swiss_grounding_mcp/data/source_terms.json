@@ -1,0 +1,20 @@
+{
+  "_comment": "Terms of use of the sources this server reaches, applied when SGM_RESPECT_TERMS is true (the default). automated_access=false: the host is never fetched. Hosts not listed here are only subject to robots.txt. Add an entry when a source's terms are reviewed; keep the terms URL so the decision can be checked.",
+  "sources": {
+    "zefix.ch": {
+      "automated_access": false,
+      "terms": "https://www.zefix.ch/",
+      "note": "Web application for people, not an API. Company data comes from the federal UID register web service (uid-wse.admin.ch) instead."
+    },
+    "geo.admin.ch": {
+      "automated_access": true,
+      "terms": "https://www.geo.admin.ch/en/general-terms-of-use-fsdi",
+      "note": "Federal Spatial Data Infrastructure: free use without registration, subject to fair use (moderate request volumes). Covers api3.geo.admin.ch and data.geo.admin.ch."
+    },
+    "transport.opendata.ch": {
+      "automated_access": true,
+      "terms": "https://transport.opendata.ch/docs.html",
+      "note": "Public API; its rate limit is that of timetable.search.ch. Answers are cached for 60 s."
+    }
+  }
+}

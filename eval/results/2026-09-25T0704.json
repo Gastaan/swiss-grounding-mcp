@@ -1,0 +1,277 @@
+[
+ {
+  "runner": "claude:sonnet",
+  "id": "P1",
+  "answer": "Um die Karton-/Papierabholung für Sie herauszufinden, brauche ich Ihre Gemeinde oder Adresse (z. B. Ort und Strasse) – die Abholtermine sind in der Schweiz gemeindespezifisch geregelt. Können Sie mir das mitteilen?",
+  "tools": [],
+  "seconds": 7.3,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P2",
+  "answer": "Le calendrier officiel des vacances scolaires 2026 pour la ville de Genève est publié par le canton de Genève (ge.ch), à cette adresse :\n\n**https://www.ge.ch/vacances-scolaires-jours-feries/vacances-scolaires-2026-2027**\n\nÀ titre indicatif, voici les périodes 2026 (année scolaire 2026-2027) telles que listées sur cette page :\n\n| Vacances | Du | Au |\n|---|---|---|\n| Automne | 19.10.2026 | 23.10.2026 |\n| Noël / Nouvel An | 24.12.2026 | 08.01.2027 |\n| Février | 23.02.2026 | 27.02.2026 |\n| Pâques | 03.04.2026 | 17.04.2026 |\n| Pont de l'Ascension | 14.05.2026 | 15.05.2026 |\n| Été | 29.06.2026 | 16.08.2026 |\n\nSource : Canton de Genève (ge.ch), page mise à jour le 13 juillet 2026. Je te recommande de vérifier directement sur le lien ci-dessus pour la version imprimable et toute mise à jour éventuelle.",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 14.1,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P3",
+  "answer": "Konstanz liegt in Deutschland (Baden-Württemberg), nicht in der Schweiz – der Rundfunkbeitrag dort ist daher der **deutsche** Rundfunkbeitrag (ARD/ZDF/Deutschlandradio), nicht die Schweizer Serafe-Abgabe. Ich weise darauf hin, weil mir für Schweizer Sachverhalte ein spezielles Tool mit offiziellen Quellen zur Verfügung steht – das deckt Konstanz aber nicht ab, da es sich um eine deutsche Angelegenheit handelt.\n\nDer deutsche Rundfunkbeitrag beträgt **18,36 € pro Monat und Wohnung** (unabhängig von der Zahl der Bewohner oder der Anzahl der Geräte). Das entspricht 55,08 € pro Quartal bzw. 220,32 € pro Jahr. Dieser Satz gilt bundesweit einheitlich, also auch in Konstanz.\n\nFalls du die genaue, aktuell gültige Zahl brauchst (Stand meines Wissens: Anfang 2026 galt weiterhin 18,36 €, es gab aber politische Diskussionen um eine Erhöhung auf 18,94 €), empfehle ich einen Blick auf rundfunkbeitrag.de, da sich der Betrag durch Staatsvertragsänderungen der Bundesländer ändern kann.",
+  "tools": [],
+  "seconds": 15.2,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P4",
+  "answer": "Las **vacanzas d'atun 2026** per las scolas da Scuol (scola populara) èn dals **10 fanadur (october) fin ils 25 fanadur (october) 2026** — la scola cuntinuescha lura ils 26 fanadur.\n\nFuntauna: Vischnanca da Scuol (scoula-scuol.ch) – https://www.scoula-scuol.ch/plan-da-scoula-e-vacanzas/plan-da-scoula-e-vacanzas-2026-27/",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 15.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P5",
+  "answer": "Il tasso ipotecario di riferimento attualmente in vigore per gli affitti in Svizzera è **1,25%**, valido dal 02.09.2025 (rimasto invariato anche dal 02.09.2026). La prossima pubblicazione dell'aggiornamento è prevista per il 01.12.2026.\n\nFonte: Ufficio federale delle abitazioni (UFAB) – https://www.bwo.admin.ch/it/tasso-dinteresse-di-riferimento",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 6.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P6",
+  "answer": "Voici comment procéder pour annoncer votre arrivée dans ces deux villes.\n\n## 🏛️ Lausanne (canton de Vaud)\n\nLa démarche se fait auprès du **Contrôle des habitants** de votre nouvelle commune, dans un délai de **14 jours** après l'emménagement.\n\n- **En ligne** : le portail fédéral propose le service **« eDéménagementCH »**, qui fonctionne aussi bien pour un déménagement au sein d'une même commune que pour une arrivée depuis une autre commune/canton.\n- **Documents à préparer** :\n  - acte d'origine individuel ou de couple (à demander à votre ancienne commune ou à l'office de l'état civil de votre commune d'origine) ;\n  - livret ou certificat de famille si vous avez des enfants ;\n  - éventuellement la carte d'assuré ou une attestation de votre caisse-maladie.\n  - Source : ch.ch – https://www.ch.ch/fr/logement/demenagement/annonce-de-depart-et-d-arrivee/\n\n- **Si vous arrivez d'un autre canton et n'avez pas la nationalité suisse** : vous devez remplir un **rapport d'arrivée** auprès du Contrôle des habitants / Bureau des étrangers de votre commune de domicile, avec copie du passeport (et éventuellement une lettre explicative).\n  - Source : Canton de Vaud – https://www.vd.ch/population/population-etrangere/entree-et-sejour/etats-tiers/arrivee-dun-autre-canton/arrivee-dun-autre-canton\n\nPour les démarches concrètes propres à la Ville (formulaires, guichet, horaires), le point d'entrée officiel est le site de la Ville : https://www.lausanne.ch/ (rubrique Contrôle des habitants) — je n'ai pas trouvé de page lausanne.ch assez précise dans ma recherche, donc mieux vaut vérifier directement là-bas les modalités exactes du guichet.\n\n## 🏛️ Berne (Ville de Berne)\n\nDepuis 2026-09-25, la Ville de Berne détaille la procédure sur sa page dédiée « Zuzug, Umzug und Wegzug » :\n\n- **Délai** : annonce à faire dans les **14 jours** suivant l'arrivée.\n- **Citoyens suisses** : inscription en ligne via le portail **eUmzugCH**.\n- **Ressortissants UE/AELE** : à annoncer aussi via eUmzugCH (ou formulaire), avec les documents suivants :\n  - formulaire « Anmeldung EU/EFTA-Staatsangehörige – Zuzug Inland » ;\n  - copie du permis de séjour (Ausländerausweis) ;\n  - copie d'une pièce d'identité nationale valable ;\n  - attestation de départ de l'ancienne commune de domicile ;\n  - si enfants mineurs (parents non mariés/séparés/divorcés) : déclaration de consentement.\n- **Ressortissants d'États tiers** : formulaire spécifique + décision d'entrée + document de voyage valable + bail à loyer (avec accord de la gérance en cas de sous-location), à envoyer dans les 14 jours ; un rendez-vous au guichet suit après vérification des documents.\n- Un contrat de bail (ou justificatif équivalent) peut être demandé selon les cas.\n\nSource : Ville de Berne – https://www.bern.ch/themen/zuzug-umzug-wegzug\n\n**En résumé** : dans les deux villes, il faut s'annoncer dans les 14 jours suivant l'arrivée, de préférence en ligne (eUmzugCH/eDéménagementCH), munis d'une pièce d'identité, de l'attestation de départ de l'ancienne commune et, selon votre nationalité, de documents complémentaires (acte d'origine pour les Suisses, permis/passeport pour les étrangers).",
+  "tools": [
+   "search_official_info",
+   "search_official_info",
+   "search_official_info",
+   "read_official_page",
+   "read_official_page",
+   "search_official_info",
+   "search_official_info",
+   "search_official_info"
+  ],
+  "seconds": 48.4,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P7",
+  "answer": "**Kündigungsfrist im ersten Dienstjahr: 1 Monat**, kündbar jeweils auf das Ende eines Monats (sofern nichts anderes vereinbart ist).\n\nDas gilt für ordentliche Arbeitsverhältnisse ohne abweichende Regelung; per schriftlicher Abrede, Normalarbeitsvertrag oder Gesamtarbeitsvertrag kann die Frist verlängert werden, unter einen Monat aber nur durch Gesamtarbeitsvertrag (und nur fürs erste Dienstjahr).\n\n**Quelle:** Art. 335c Abs. 1 OR (Obligationenrecht, SR 220), Fedlex (Bundeskanzlei) – https://www.fedlex.admin.ch/eli/cc/27/317_321_377/de#art_335_c (konsolidierte Fassung, in Kraft seit 1.1.2026)\n\nWortlaut: *\"Das Arbeitsverhältnis kann im ersten Dienstjahr mit einer Kündigungsfrist von einem Monat […] je auf das Ende eines Monats gekündigt werden.\"*",
+  "tools": [
+   "swiss_federal_law"
+  ],
+  "seconds": 10.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P8",
+  "answer": "Die offizielle Quelle (Bundesamt für Wohnungswesen BWO) ist gerade nicht erreichbar, daher kann ich Ihnen keinen verlässlichen aktuellen Wert nennen.\n\nBitte schauen Sie direkt hier nach: https://www.bwo.admin.ch/de/referenzzinssatz",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 9.8,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P9",
+  "answer": "Die Herbstferien 2026 in der Stadt Bern (Volksschulen) dauern vom **19. September bis 11. Oktober 2026**.\n\nQuelle: Stadt Bern – https://www.bern.ch/themen/bildung/schule/schulferien",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 10.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P10",
+  "answer": "Vous devez vous annoncer auprès du **Contrôle des habitants de la Ville de Lausanne** (l'administration communale du lieu où vous vous installez) :\n\n- **En ligne** : via le service **eDéménagementCH**, qui fonctionne aussi bien pour un changement d'adresse à l'intérieur de la même commune que pour une arrivée depuis une autre commune (Source : ch.ch – https://www.ch.ch/fr/logement/demenagement/annonce-de-depart-et-d-arrivee/).\n- **Sur place**, au guichet du Contrôle des habitants de Lausanne — pour l'adresse exacte, les horaires et le formulaire à jour, le mieux est de consulter directement le site officiel **lausanne.ch**.\n\nDocuments généralement demandés :\n- Acte d'origine individuel ou de couple (délivré par votre ancienne commune ou l'office de l'état civil de votre commune d'origine)\n- Livret ou certificat de famille si vous avez des enfants\n- Éventuellement carte d'assuré / attestation de votre caisse-maladie\n\n(Source : ch.ch – https://www.ch.ch/fr/logement/demenagement/annonce-de-depart-et-d-arrivee/)\n\nSi vous êtes de nationalité étrangère et arrivez d'un autre canton, il faut aussi remplir un **rapport/annonce d'arrivée** auprès du même Contrôle des habitants (qui transmet ensuite au Service de la population, SPOP) (Source : État de Vaud – https://www.vd.ch/population/population-etrangere/entree-et-sejour/etats-tiers/arrivee-dun-autre-canton/arrivee-dun-autre-canton).\n\nSouhaitez-vous que je vérifie l'adresse et les horaires précis du guichet du Contrôle des habitants sur lausanne.ch ?",
+  "tools": [
+   "search_official_info",
+   "search_official_info",
+   "search_official_info",
+   "read_official_page",
+   "search_official_info"
+  ],
+  "seconds": 22.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "P11",
+  "answer": "Il tasso ipotecario di riferimento per gli affitti in Svizzera è pubblicato dall'**Ufficio federale delle abitazioni (UFAB / BWO)**, l'ente federale competente in materia.\n\nAttualmente il tasso è **1,25%**, in vigore dal 02.09.2025 (rimasto invariato anche dal 02.09.2026), con prossima pubblicazione prevista per l'01.12.2026.\n\nQuesto tasso costituisce la base per gli adeguamenti dei canoni di locazione (art. 12a OLL).\n\nFonte: Ufficio federale delle abitazioni (UFAB) – https://www.bwo.admin.ch/it/tasso-dinteresse-di-riferimento",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 8.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P1",
+  "answer": "Ich kann dir helfen, aber ich brauche deine genaue Adresse oder deinen Ort in der Schweiz, um die Abholtermine für Karton bei dir zu finden.\n\nKannst du mir mitteilen:\n- Deine Adresse oder Postleitzahl und Ort?\n\nMit dieser Information kann ich dann die offiziellen Abholtermine für Karton/Papier bei dir abfragen.",
+  "tools": [],
+  "seconds": 5.1,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P2",
+  "answer": "Le calendrier officiel des vacances scolaires 2026 de Genève est disponible sur deux sources officielles :\n\n## Sources officielles\n\n1. **Canton de Genève** — https://www.ge.ch/vacances-scolaires-jours-feries/vacances-scolaires-2026-2027\n   - Version imprimable disponible\n\n2. **Ville de Genève** — https://www.geneve.ch/autorites-administration/administration-municipale/jours-feries-vacances-scolaires\n   - Jours fériés et vacances scolaires\n\n## Calendrier 2026-2027\n\n- **Rentrée scolaire** : lundi 17 août 2026\n- **Jeûne genevois** : jeudi 10 septembre 2026\n- **Vacances d'automne** : du lundi 19 octobre au vendredi 23 octobre 2026\n- **Vacances de Noël et Nouvel An** : du jeudi 24 décembre 2026 au vendredi 8 janvier 2027\n- **Vacances de février** : du lundi 15 février 2027 au vendredi 19 février 2027\n- **Vacances de Pâques** : du vendredi 26 mars au vendredi 9 avril 2027\n- **Pont de l'Ascension** : jeudi 6 mai et vendredi 7 mai 2027\n- **Pentecôte** : lundi 17 mai 2027\n- **Vacances d'été** : à partir du lundi 5 juillet 2027\n\nSource : Canton de Genève (ge.ch) et Ville de Genève – mise à jour du 13 juillet 2026",
+  "tools": [
+   "search_official_info"
+  ],
+  "seconds": 13.3,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P3",
+  "answer": "Ihre Frage bezieht sich auf Konstanz, das sich in Deutschland (Baden-Württemberg) befindet, nicht in der Schweiz. Der Rundfunkbeitrag ist eine deutsche Gebühr für öffentlich-rechtliche Rundfunkanstalten.\n\nDer Swiss-Informationsdienst, den ich verfügbar habe, deckt ausschließlich die Schweiz ab. Für Informationen zum deutschen Rundfunkbeitrag kann ich Ihnen leider nicht weiterhelfen. \n\nFür genaue aktuelle Informationen zum Rundfunkbeitrag in Deutschland empfehle ich, die Website der ARD unter www.rundfunkbeitrag.de zu besuchen.",
+  "tools": [],
+  "seconds": 6.9,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P4",
+  "answer": "Las vacanzas d'atun (Herbstferien) per las scolas da Scuol èn dal **10 ad 25 da october 2026**.\n\nFontaun: [Scolas da Scuol – plan da scoula e vacanzas 2026/27](https://www.scoula-scuol.ch/plan-da-scoula-e-vacanzas/plan-da-scoula-e-vacanzas-2026-27/)",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 11.8,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P5",
+  "answer": "Il **tasso ipotecario di riferimento attualmente in vigore per gli affitti in Svizzera è 1,25%**, valido dal 2 settembre 2025.\n\nQuesto tasso è determinato dall'Ufficio federale delle abitazioni (BWO - Bundesamt für Wohnwesen) e rappresenta la base per gli adeguamenti degli affitti secondo l'articolo 12a della legge federale sui contratti di locazione.\n\nLa prossima pubblicazione di un eventuale aggiornamento del tasso è prevista per il 1° dicembre 2026.\n\n**Fonte:** Ufficio federale delle abitazioni BWO – https://www.bwo.admin.ch/it/tasso-dinteresse-di-riferimento",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 11.0,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P6",
+  "answer": "Voici comment annoncer votre arrivée dans ces deux villes selon les sources officielles :\n\n## **À Lausanne (canton de Vaud)**\n\nVous devez compléter un **rapport d'arrivée** auprès du **Contrôle des habitants et Bureau des étrangers de votre commune de domicile**.\n\nDocuments à fournir :\n- Rapport d'arrivée\n- Copie de votre passeport\n- Lettre explicative motivant votre changement de canton (si vous veniez d'un autre canton)\n- Éventuellement une ou deux photos, selon les communes\n\nSource : https://www.vd.ch/population/population-etrangere/entree-et-sejour/etats-tiers/arrivee-dun-autre-canton/arrivee-dun-autre-canton\n\n---\n\n## **À Berne**\n\nVous devez **vous annoncer dans les 14 jours** de votre arrivée :\n\n**Pour les citoyens suisses** : enregistrement en ligne via le portail **eUmzugCH** (coûts facturés électroniquement).\n\n**Pour les ressortissants UE/AELE ou des tiers pays** : inscription auprès des services de population dans les 14 jours. Vous pouvez faire l'enregistrement en ligne via eUmzugCH ou sur formulaire papier. Documents à fournir : permis de résidence, copie du contrat de location ou justificatif d'adresse.\n\nSource : https://www.bern.ch/themen/zuzug-umzug-wegzug",
+  "tools": [
+   "search_official_info",
+   "search_official_info",
+   "search_official_info",
+   "read_official_page",
+   "search_official_info",
+   "read_official_page"
+  ],
+  "seconds": 27.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P7",
+  "answer": "Die **Kündigungsfrist im ersten Dienstjahr beträgt 1 Monat**, mit Kündigung jeweils auf das Monatsende.\n\n**Genaue Quelle:**\n\nDies ist im Schweizer Obligationenrecht (OR) festgelegt und wird durch die offizielle Informationsplattform der Schweizer Konföderation **ch.ch** belegt:\n\n> „im ersten Anstellungsjahr: 1 Monat, Kündigung jeweils auf das Monatsende möglich (Beispiel: Wenn das Kündigungsdatum der 13. Juni ist und Sie einen Monat Kündigungsfrist haben, dann endet Ihr Arbeitsvertrag am 31. Juli.)\"\n\n**Quelle:** https://www.ch.ch/de/arbeit/kundigung-arbeitsvertrag/\n\nDiese Frist gilt, wenn keine schriftliche Vereinbarung und kein Gesamtarbeitsvertrag eine andere Regelung vorsieht. Für Vergleich: In der **Probezeit** beträgt die Frist 7 Tage, und ab dem 2. Dienstjahr steigt sie auf 2 Monate.",
+  "tools": [
+   "search_official_info"
+  ],
+  "seconds": 13.8,
+  "content_ok": false,
+  "cited": false,
+  "pass": false
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P8",
+  "answer": "Die offizielle Quelle für den aktuellen hypothekarischen Referenzzinssatz ist derzeit leider nicht erreichbar. \n\nBitte überprüfen Sie die aktuelle Rate auf der Website des Bundesamts für Wohnen (BWO):\n**https://www.bwo.admin.ch/de/referenzzinssatz**\n\nDort finden Sie den aktuellen Referenzzinssatz, der monatlich aktualisiert wird.",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 7.9,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P9",
+  "answer": "Die **Herbstferien 2026 in Bern** sind von **Samstag, 19. September 2026 bis Sonntag, 11. Oktober 2026**.\n\nSource: Stadt Bern – https://www.bern.ch/themen/bildung/schule/schulferien",
+  "tools": [
+   "search_official_info"
+  ],
+  "seconds": 11.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P10",
+  "answer": "Selon les sources officielles suisses, voici où vous devez annoncer votre arrivée à Lausanne :\n\n## Procédure générale\n\nVous devez **annoncer votre arrivée auprès du Contrôle des habitants de la Commune de Lausanne**. \n\nEn Suisse, si vous déménagez à Lausanne, vous pouvez :\n- **Annoncer votre changement d'adresse en ligne** via le service « eDéménagementCH » (https://www.ch.ch/fr/logement/demenagement/annonce-de-depart-et-d-arrivee/)\n- **Vous présenter personnellement** auprès du Contrôle des habitants et Bureau des étrangers de la Commune de Lausanne\n\n**Source fédérale :** https://www.ch.ch/fr/logement/demenagement/annonce-de-depart-et-d-arrivee/\n\n## Documents généralement requis\n\nSelon le Canton de Vaud, vous devrez fournir :\n- Rapport d'arrivée (formulaire à compléter auprès du Contrôle des habitants)\n- Copie de votre passeport\n- Livret de famille ou certificat de famille (si vous avez des enfants)\n- Carte d'assuré ou certificat d'assurance maladie actuel\n\n**Source cantonale :** https://www.vd.ch/population/population-etrangere/entree-et-sejour/etats-tiers/arrivee-dun-autre-canton/arrivee-dun-autre-canton\n\nPour les détails précis et les coordonnées du Contrôle des habitants de Lausanne, je vous recommande de consulter le site officiel : https://www.lausanne.ch/",
+  "tools": [
+   "search_official_info",
+   "search_official_info",
+   "read_official_page",
+   "read_official_page"
+  ],
+  "seconds": 21.0,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "P11",
+  "answer": "L'**Ufficio Federale per l'Abitazione (BWO)** è l'autorità che pubblica il tasso ipotecario di riferimento per gli affitti in Svizzera.\n\nIl tasso di riferimento attuale è **1,25%**, valido dal 2 settembre 2025. Questo tasso serve da base legale per gli adeguamenti degli affitti secondo l'articolo 12a della Legge sulle locazioni di immobili (VMWG). La prossima pubblicazione del tasso è prevista per il 1° dicembre 2026.\n\nPer maggiori informazioni, consulta la pagina ufficiale: https://www.bwo.admin.ch/it/tasso-dinteresse-di-riferimento",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 11.8,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ }
+]

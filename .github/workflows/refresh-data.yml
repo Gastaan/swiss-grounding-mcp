@@ -12,18 +12,28 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - run: uv sync --locked --group build
-      - run: uv run --group build python scripts/build_places.py
-      - run: uv run --group build python scripts/build_premiums.py $(date +%Y) $(( $(date +%Y) + 1 ))
-      - run: uv run --group build python scripts/build_index.py
-      - run: uv run pytest -q
+      - run: uv sync --locked --group build --extra semantic
+      - run: uv run --group build --extra semantic python scripts/build_places.py
+      - run: uv run --group build --extra semantic python scripts/build_premiums.py $(date +%Y) $(( $(date +%Y) + 1 ))
+      - run: uv run --group build --extra semantic python scripts/build_index.py
+      # vectors must match the new index (the server refuses mismatched ones); ~30 min on a runner
+      - run: uv run --group build --extra semantic python scripts/build_embeddings.py
+      - run: uv run --extra semantic pytest -q
+      - name: Search quality on the new data
+        run: uv run --extra semantic python scripts/search_eval.py | tee build/search_eval.txt
+      - name: Pull request text, with municipal website changes for review
+        run: |
+          { echo "Automated weekly rebuild from the official sources (scripts/build_*.py)."; echo;
+            echo "Municipal websites feed the official-domain allowlist: check the changes below before merging.";
+            echo; cat build/website_changes.md;
+            echo; echo "## Search quality (scripts/search_eval.py)"; echo; echo '```'; tail -4 build/search_eval.txt; echo '```'; } > build/pr_body.md
       - uses: peter-evans/create-pull-request@v7
         with:
           branch: data-refresh
           title: "Data refresh ${{ github.run_id }}"
           commit-message: "Refresh municipality register, premiums and search index"
-          body: "Automated weekly rebuild from the official sources (scripts/build_*.py)."
+          body-path: build/pr_body.md

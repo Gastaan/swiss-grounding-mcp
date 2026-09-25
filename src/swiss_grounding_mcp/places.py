@@ -11,6 +11,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from functools import cache
+from urllib.parse import urlsplit
 
 from . import http
 from .config import DATA_DIR
@@ -82,6 +83,34 @@ FOREIGN = {
     "milan": "Italy", "aosta": "Italy", "tirano": "Italy",
 }
 
+# Municipal websites come from Wikidata, which anyone can edit, and they feed the allowlist of official
+# domains. Only addresses that look like a Swiss public body's are trusted; data/website_overrides.json
+# holds reviewed corrections (BFS number -> URL, or null to drop one).
+_HOSTING = ("jimdo", "wix", "weebly", "wordpress", "blogspot", "webnode", "site123", "business.site",
+            "godaddysites", "squarespace", "strikingly")
+
+
+def official_website(url: str | None) -> str | None:
+    """Return the URL if it can stand as a municipality's official website, else None."""
+    if not url:
+        return None
+    parts = urlsplit(url.strip())
+    host = (parts.hostname or "").lower()
+    if parts.scheme not in ("http", "https") or not host.endswith((".ch", ".swiss")):
+        return None
+    if any(h in host for h in _HOSTING):
+        return None
+    return url.strip()
+
+
+@cache
+def website_overrides() -> dict[int, str | None]:
+    path = DATA_DIR / "website_overrides.json"
+    if not path.exists():
+        return {}
+    return {int(k): v for k, v in json.loads(path.read_text())["overrides"].items()}
+
+
 _STRIP = re.compile(
     r"^(gemeinde|stadt|kanton|canton|commune( de)?|ville de|comune( di)?|citta di|cumun( da)?"
     r"|vschinauncha( da)?|chantun|cantone( di| del)?)\s+"
@@ -136,7 +165,11 @@ class Resolution:
 @cache
 def register() -> dict:
     data = json.loads((DATA_DIR / "places.json").read_text())
-    munis = [Municipality(**m) for m in data["municipalities"]]
+    overrides = website_overrides()
+    munis = []
+    for m in data["municipalities"]:
+        website = overrides[m["bfs"]] if m["bfs"] in overrides else official_website(m["website"])
+        munis.append(Municipality(**{**m, "website": website}))
     by_name: dict[str, list[Municipality]] = {}
     by_plz: dict[int, list[Municipality]] = {}
     by_locality: dict[str, list[Municipality]] = {}

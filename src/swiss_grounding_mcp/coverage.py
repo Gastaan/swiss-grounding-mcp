@@ -11,8 +11,9 @@ COVERAGE = [
      "tool": "swiss_place_info"},
     {"topic": "Procedures, rules, fees, deadlines (permits, moving, taxes, social insurance, driving licences, "
               "customs, schools, housing, voting, unemployment…)",
-     "geography": "federal (ch.ch in de/fr/it/rm/en, federal offices) + 26 cantonal portals + 12 largest cities",
-     "source": "prebuilt full-text index of official pages + live page reading",
+     "geography": "federal (ch.ch in de/fr/it/rm/en, federal offices) + cantonal portals of 23 cantons (not GR, BL, "
+                  "SH; VS, TI and TG only partly) + city pages of Lucerne, Lugano, Winterthur, Biel/Bienne, St. Gallen, Bern, Geneva, Lausanne and Thun (Zürich: a few pages)",
+     "source": "prebuilt index of official pages (keyword, or hybrid with the semantic extra) + live page reading",
      "tool": "search_official_info, read_official_page"},
     {"topic": "Federal law (current consolidated text, any article)", "geography": "federal",
      "source": "Fedlex", "tool": "swiss_federal_law"},

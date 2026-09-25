@@ -26,6 +26,7 @@ import openpyxl
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from swiss_grounding_mcp.config import DATA_DIR, settings  # noqa: E402
+from swiss_grounding_mcp.places import official_website, website_overrides  # noqa: E402
 
 H = {"User-Agent": settings.user_agent}
 POP_URL = "https://www.pxweb.bfs.admin.ch/api/v1/de/px-x-0102010000_101/px-x-0102010000_101.px"
@@ -168,7 +169,7 @@ def main() -> None:
                 "premium_region": reg.get("premium_region"),
                 "postcodes": sorted(reg.get("postcodes", [])),
                 "localities": sorted(reg.get("localities", [])),
-                "website": sites.get(bfs),
+                "website": official_website(sites.get(bfs)),
                 "population": pop.get(bfs),
                 "holiday_code": hol.get(m["canton"], {}).get(norm(m["name"].split(" (")[0])),
             }
@@ -189,8 +190,35 @@ def main() -> None:
     }
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     path = DATA_DIR / "places.json"
+    report = website_report(path, records, sites)
     path.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")))
     print(f"wrote {path} ({path.stat().st_size // 1024} KB)")
+    # municipal websites come from Wikidata (editable by anyone) and feed the official-domain allowlist,
+    # so every change is listed for review; the refresh workflow puts this file in the pull request
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
+    REPORT.write_text(report)
+    print(report)
+
+
+REPORT = ROOT / "build" / "website_changes.md"
+
+
+def website_report(previous_path: Path, records: list[dict], raw: dict[int, str]) -> str:
+    try:
+        before = {m["bfs"]: m["website"] for m in json.loads(previous_path.read_text())["municipalities"]}
+    except (OSError, ValueError, KeyError):
+        before = {}
+    names = {r["bfs"]: r["name"] for r in records}
+    changed = [(bfs, before.get(bfs), r["website"]) for bfs, r in ((r["bfs"], r) for r in records)
+               if before.get(bfs) != r["website"]]
+    reviewed = website_overrides()
+    rejected = [(bfs, url) for bfs, url in sorted(raw.items())
+                if url and not official_website(url) and bfs in names and bfs not in reviewed]
+    lines = ["## Municipal website changes (from Wikidata)", ""]
+    lines += [f"- {names[b]} (BFS {b}): {old or '—'} → {new or '—'}" for b, old, new in changed] or ["- none"]
+    lines += ["", "## Rejected by the official-website check, not yet reviewed (add exceptions to data/website_overrides.json)", ""]
+    lines += [f"- {names[b]} (BFS {b}): {url}" for b, url in rejected] or ["- none"]
+    return "\n".join(lines) + "\n"
 
 
 if __name__ == "__main__":

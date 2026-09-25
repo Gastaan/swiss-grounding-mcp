@@ -1,0 +1,387 @@
+[
+ {
+  "runner": "claude:sonnet",
+  "id": "S1",
+  "answer": "Ich brauche noch die Gemeinde (und ggf. PLZ oder Strasse), um die Abfuhrtermine für Karton nachzuschlagen. In welcher Gemeinde/Ort wohnt ihr?",
+  "tools": [],
+  "seconds": 10.6,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "S2",
+  "answer": "## Délai\n\nVous disposez de **12 mois dès votre arrivée en Suisse** pour échanger votre permis de conduire étranger contre un permis suisse (au-delà, l'échange reste possible mais vous risquez une amende). Passé un délai de 5 ans de résidence, une course de contrôle peut être exigée si vous n'avez pas conduit régulièrement — sinon il faut compléter une attestation de conduite régulière.\nSource : ch.ch – https://www.ch.ch/fr/circulation-et-vehicules/permis-de-conduire/changement-de-permis-de-conduire/ et État de Vaud – https://www.vd.ch/mobilite/automobile-et-navigation/permis/echanger-un-permis-etranger\n\n## Conditions à remplir\n\n- Être domicilié ou résider dans le canton de Vaud\n- Avoir l'âge légal requis pour la catégorie demandée\n- Avoir un permis de conduire étranger **valable**\n- Avoir obtenu ce permis **avant** votre entrée en Suisse (si obtenu après votre arrivée, contactez le SAN pour vérifier si un échange est possible)\n- Seuls les permis délivrés par des États ayant une convention de reconnaissance mutuelle avec la Suisse peuvent être échangés **sans examen** ; sinon un examen (pratique/théorique) peut être requis\n\nSource : État de Vaud – https://www.vd.ch/prestation/echanger-un-permis-de-conduire-etranger\n\n## Marche à suivre\n\n1. Complétez le formulaire **« Demande d'un permis de conduire suisse sur la base d'un permis de conduire étranger (220) »**.\n2. Réunissez les pièces demandées (liste détaillée sur le formulaire, selon la catégorie).\n3. Déposez ou envoyez le dossier complet au **Service des automobiles et de la navigation (SAN)** — en ligne, par courrier ou par e-mail.\n\nLe nouveau permis est envoyé dans une enveloppe blanche sans en-tête.\n\nSource : État de Vaud – https://www.vd.ch/prestation/echanger-un-permis-de-conduire-etranger\n\nPour la liste précise des documents à fournir selon votre pays d'origine et catégorie de permis, il faut se référer au formulaire 220 lui-même (disponible sur la page ci-dessus).",
+  "tools": [
+   "search_official_info",
+   "read_official_page"
+  ],
+  "seconds": 22.3,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "S3",
+  "answer": "Il premio mensile più basso per il 2026, per un adulto di 30 anni a Lugano con franchigia di 2500 CHF (senza copertura infortuni), è **CHF 449.90**, offerto da **Agrisano** con il piano **\"AGRIsmart\"** (modello alternativo, es. telemedicina).\n\nAlcune alternative simili:\n- KPT \"KPTwin.plus\"/\"KPTwin.smart\" – CHF 451.10\n- Aquilana \"SMARTMED\" – CHF 452.80\n- Assura-Basis \"Qualimed\" (medico di famiglia) – CHF 455.30\n\nSe invece si cerca il modello standard con libera scelta del medico, il più economico è sempre Agrisano a **CHF 523.20**.\n\nFonte: Ufficio federale della sanità pubblica (UFSP) – https://www.priminfo.admin.ch/de/praemien",
+  "tools": [
+   "health_insurance_premiums"
+  ],
+  "seconds": 16.1,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "S4",
+  "answer": "Las vacanzas d'atun 2026 per la scola da Scuol èn dals **10 fin ils 25 october 2026**.\n\nFuntauna: OpenHolidays (datas averts, agiuntadas da las glistas cantunalas uffizialas) – https://openholidaysapi.org/SchoolHolidays?countryIsoCode=CH&subdivisionCode=CH-GR-EB-SC&validFrom=2026-01-01&validTo=2026-12-31&languageIsoCode=DE",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 12.6,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "S5",
+  "answer": "Der Rundfunkbeitrag ist in Deutschland bundesweit einheitlich geregelt – er hängt **nicht** vom Wohnort ab, also auch nicht speziell von Konstanz. Ein Umzug innerhalb Deutschlands ändert die Höhe nicht.\n\n**Wichtige Eckpunkte:**\n- Der Beitrag wird pro **Wohnung/Haushalt** erhoben, nicht pro Person. Wenn Sie mit anderen Personen in einer Wohnung zusammenleben, zahlt der Haushalt den Beitrag nur einmal.\n- Seit 2021 lag der Beitrag bei **18,36 € pro Monat**. Es gab Bestrebungen, ihn ab 2025 auf 18,94 € anzuheben, was aber politisch/rechtlich umstritten war (u. a. weil nicht alle Bundesländer den Staatsvertrag ratifiziert haben und der Fall vor dem Bundesverfassungsgericht landete).\n- Da mein Wissensstand von Januar 2026 hier nicht hundertprozentig verlässlich ist, was den genauen aktuellen Betrag angeht, empfehle ich, den tagesaktuellen Stand direkt bei **rundfunkbeitrag.de** zu prüfen – dort finden Sie auch das Formular zur Ummeldung nach einem Umzug.\n\n**Was Sie nach dem Umzug tun müssen:** Sie müssen dem Beitragsservice die neue Adresse mitteilen (online, per Post oder telefonisch), damit Ihr Beitragskonto aktualisiert wird – die Höhe des Beitrags selbst ändert sich dadurch aber nicht.\n\nDa es sich um eine bundesdeutsche (nicht schweizerische) Angelegenheit handelt, kann ich meine Schweiz-spezifischen Recherche-Tools hier nicht nutzen – falls Sie ganz sichergehen wollen, lohnt sich ein kurzer Blick auf die offizielle Seite.",
+  "tools": [],
+  "seconds": 15.2,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q6",
+  "answer": "Der aktuelle hypothekarische Referenzzinssatz für Mietverhältnisse beträgt **1,25 %**, gültig seit dem 02.09.2025 (unverändert bis mindestens 02.09.2026).\n\nQuelle: Bundesamt für Wohnungswesen (BWO) – https://www.bwo.admin.ch/de/referenzzinssatz",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 8.8,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q7",
+  "answer": "Selon l'art. 335c al. 1 CO, pendant la **première année de service**, le délai de congé est de **un mois**, pour la fin d'un mois.\n\nPour rappel, les délais suivants sont :\n- **1 mois** — 1ère année de service\n- **2 mois** — de la 2e à la 9e année de service\n- **3 mois** — dès la 10e année\n\nCes délais peuvent être modifiés par accord écrit, contrat-type de travail ou convention collective de travail (mais un délai inférieur à un mois ne peut être fixé que par convention collective, et uniquement pour la première année).\n\nSource : Fedlex (Chancellerie fédérale) – https://www.fedlex.admin.ch/eli/cc/27/317_321_377/fr#art_335_c",
+  "tools": [
+   "swiss_federal_law"
+  ],
+  "seconds": 16.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q8",
+  "answer": "Bellinzona (Canton Ticino) conta **45'828 abitanti permanenti** (dato 2025).\n\nFonte: Ufficio federale di statistica (UST) – https://www.pxweb.bfs.admin.ch/pxweb/de/px-x-0102010000_101/",
+  "tools": [
+   "swiss_place_info"
+  ],
+  "seconds": 7.5,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q9",
+  "answer": "Hier die Verbindungen ab Zürich HB nach Bellinzona für morgen (26.09.2026) um 8 Uhr:\n\n**08:05 ab Zürich HB (Gleis 8) → 09:42 an Bellinzona** (1 Umsteigen, 1h37)\n- IR46 bis Arth-Goldau (08:05–08:45)\n- IC21 ab Arth-Goldau (08:49, Gleis 5) → Bellinzona (09:42)\n\nAlternativ, wenig später:\n- **08:33 (Gleis 7) → 10:12**, direkt mit dem EC (1h39, keine Umsteigen)\n- **09:05 (Gleis 7) → 10:42**, direkt mit dem IC2 (1h37, keine Umsteigen)\n\nDie schnellste ist die 08:05-Verbindung, dafür mit einem Umstieg in Arth-Goldau; wer lieber direkt fährt, nimmt den EC um 08:33.\n\nQuelle: Opendata.ch / Open Data Platform Mobility Switzerland – https://transport.opendata.ch/v1/connections?from=Zürich%20HB&to=Bellinzona (fahrplanmäßige Zeiten, Verspätungen möglich — zur Kontrolle/Ticketkauf: https://www.sbb.ch/)",
+  "tools": [
+   "public_transport"
+  ],
+  "seconds": 11.3,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q10",
+  "answer": "Yes — **Swisscom AG** is registered in the Swiss commercial register.\n\n- **UID:** CHE-102.753.938\n- **Legal seat:** Bern, BE\n- **Address:** Alte Tiefenaustrasse 6, 3050 Bern\n- **VAT-registered:** Yes\n\nSource: Federal Statistical Office (UID register) – https://www.uid.admin.ch/Detail.aspx?uid_id=CHE102753938\n\n(Note: related entities like Swisscom (Schweiz) AG and Swisscom Broadcast AG have separate UIDs if you need those.)",
+  "tools": [
+   "company_register"
+  ],
+  "seconds": 9.9,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q11",
+  "answer": "Am 27. September 2026 wird auf Bundesebene über zwei Volksinitiativen abgestimmt:\n\n1. **Neutralitätsinitiative** – «Wahrung der schweizerischen Neutralität»\n2. **Ernährungsinitiative** – «Für eine sichere Ernährung – durch Stärkung einer nachhaltigen inländischen Produktion, mehr pflanzliche Lebensmittel und sauberes Trinkwasser»\n\nQuelle: Bundesamt für Statistik (BFS) – https://ogd-static.voteinfo-app.ch/v1/ogd/sd-t-17-02-20260927-eidgAbstimmung.json, sowie Bundeskanzlei – https://www.admin.ch/de/abstimmungstermine",
+  "tools": [
+   "federal_votes"
+  ],
+  "seconds": 8.4,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q12",
+  "answer": "Nein, in der Regel nicht – bei einem Warenwert von 50 Franken bleibst du unter der Freigrenze.\n\n**Warum:** Das Bundesamt für Zoll und Grenzsicherheit (BAZG) erhebt die Einfuhr-Mehrwertsteuer aus verwaltungsökonomischen Gründen erst ab einem Steuerbetrag von 5 Franken. Beim Normalsatz von 8,1 % entspricht das einem Warenwert von 62 Franken. Da deine Sendung mit 50 Franken darunter liegt, wird keine Einfuhrsteuer erhoben (ebenso keine Zollabgaben, die generell bis 5 Franken nicht verrechnet werden).\n\n**Ausnahme:** Wenn der deutsche Händler ein grosses Versandhandelsunternehmen ist, das jährlich für mehr als CHF 100'000 Kleinsendungen in die Schweiz liefert, muss es sich seit 2019 in der Schweiz für die MWST registrieren und die Steuer bereits im Verkaufspreis einrechnen – unabhängig vom Einzelwert der Sendung. In dem Fall zahlst du die MWST also schon beim Kauf, nicht an der Grenze.\n\nQuelle: BAZG – https://www.bazg.admin.ch/de/postversand-interneteinkauf-kurierverkehr-einfuhr-firmen",
+  "tools": [
+   "search_official_info",
+   "read_official_page"
+  ],
+  "seconds": 35.4,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q13",
+  "answer": "Le prochain ramassage du carton à Zurich 8003 est le **jeudi 1er octobre 2026**, puis chaque jeudi ensuite (8, 15, 22, 29 octobre, etc.).\n\nSource : Stadt Zürich – https://data.stadt-zuerich.ch/dataset?q=entsorgungskalender",
+  "tools": [
+   "waste_collection"
+  ],
+  "seconds": 7.3,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q14",
+  "answer": "Es gibt mehrere Gemeinden namens Buchs in der Schweiz: **Buchs (ZH)**, **Buchs (SG)** oder **Buchs (AG)**. Welche meinst du?",
+  "tools": [
+   "swiss_place_info"
+  ],
+  "seconds": 8.3,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q15",
+  "answer": "The capital of Australia is **Canberra**, with a population of roughly **460,000–470,000** people (it's Australia's largest inland city but much smaller than Sydney or Melbourne, which are often mistaken for the capital).",
+  "tools": [],
+  "seconds": 5.8,
+  "content_ok": false,
+  "cited": null,
+  "pass": false
+ },
+ {
+  "runner": "claude:sonnet",
+  "id": "Q16",
+  "answer": "Ho cercato l'informazione nell'indice delle fonti ufficiali svizzere (federali, cantonali TI e del Comune di Lugano), ma **non è emersa una pagina ufficiale che riporti la tariffa dell'abbonamento annuale delle piscine comunali di Lugano** — le ricerche restituiscono solo pagine federali non pertinenti (es. fisco, oggetti smarriti).\n\nNon essendo questa cifra reperibile nella fonte ufficiale indicizzata, non posso indicarti un importo affidabile senza rischiare di darti un dato sbagliato o non aggiornato.\n\n**Cosa ti consiglio:** consulta direttamente il sito ufficiale del Comune di Lugano, https://www.lugano.ch/ (sezione Temi e servizi → Sport/Tempo libero → Piscine), dove dovrebbero essere elencate le tariffe di ingresso e degli abbonamenti per le piscine comunali (es. Piscina coperta Cornaredo, Lido di Lugano), oppure contatta direttamente l'ufficio Sport della Città.",
+  "tools": [
+   "search_official_info",
+   "search_official_info",
+   "swiss_place_info",
+   "read_official_page",
+   "search_official_info",
+   "search_official_info",
+   "search_official_info"
+  ],
+  "seconds": 39.4,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "S1",
+  "answer": "Ich brauche Ihre genaue Adresse oder Gemeinde in der Schweiz, um die Abholtermine für Karton zu ermitteln. Die Sammelkalender unterscheiden sich je nach Kanton und Gemeinde.\n\nKönnen Sie mir folgende Informationen geben?\n- **Gemeinde/Stadt** (z.B. Zürich, Bern, Luzern)\n- Oder: **Postleitzahl und Adresse**\n\nDann kann ich Ihnen den nächsten Abholtermin für Karton/Papier zeigen.",
+  "tools": [],
+  "seconds": 6.7,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "S2",
+  "answer": "## Échanger un permis de conduire étranger dans le canton de Vaud\n\nVoici les informations officielles du canton de Vaud :\n\n### **Délai : 12 mois**\nSi vous êtes titulaire d'un permis de conduire étranger valable et que vous vous installez en Suisse, vous disposez d'un délai de **12 mois dès votre arrivée** pour l'échanger contre un permis suisse. Au-delà de ce délai, vous êtes tenu de procéder à cet échange si vous résidez en Suisse depuis plus de 12 mois sans avoir séjourné plus de 3 mois consécutifs à l'étranger.\n\n### **Condition importante**\nVotre permis étranger doit provenir d'un État qui a une convention de reconnaissance mutuelle avec la Suisse pour pouvoir être échangé **sans examen**. Sinon, vous devrez passer l'examen complet (théorique et pratique).\n\n### **Procédure**\n1. Complétez le **formulaire 220** (Demande d'un permis de conduire suisse sur la base d'un permis de conduire étranger)\n2. Réunissez tous les documents requis selon les indications du formulaire\n3. Envoyez votre dossier complet au Service des automobiles et de la navigation (SAN) par courrier, email ou en ligne\n\n### **Où envoyer votre demande**\nLes centres du SAN sont situés à :\n- Aigle\n- Lausanne\n- Nyon\n- Yverdon-les-Bains\n\n### **Délai de réception**\nLe permis est envoyé par courrier (2-3 jours ouvrables environ).\n\n**Source officielle** : Canton de Vaud — https://www.vd.ch/prestation/echanger-un-permis-de-conduire-etranger",
+  "tools": [
+   "search_official_info",
+   "read_official_page"
+  ],
+  "seconds": 18.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "S3",
+  "answer": "Il premio mensile più basso dell'assicurazione di base per un adulto di 30 anni domiciliato a Lugano con franchigia di 2500 franchi è **CHF 449.90** (2026).\n\nQuesto premio è offerto da **Agrisano** con il piano **AGRIsmart**, un modello alternativo (ad es. telemedicina prima) che prevede restrizioni nella scelta del medico.\n\nSe preferisci un modello standard con libera scelta del medico, il premio più basso è **CHF 523.20** (Agrisano, Grundversicherung).\n\n**Fonte:** Federal Office of Public Health FOPH – https://www.priminfo.admin.ch/de/praemien",
+  "tools": [
+   "health_insurance_premiums"
+  ],
+  "seconds": 13.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "S4",
+  "answer": "Las vacanzas d'atun 2026 per Scuol sco sco:\n\n**Vacanzas d'atun (Herbstferien): 10. october – 25. october 2026**\n\nQuesta data è valida per tutta la regiun dal Grischun (Graubünden).\n\nFuntauna: OpenHolidays (datas officialsas dal chantun) – https://openholidaysapi.org/SchoolHolidays?countryIsoCode=CH&subdivisionCode=CH-GR-EB-SC&validFrom=2026-01-01&validTo=2026-12-31&languageIsoCode=DE",
+  "tools": [
+   "swiss_holidays"
+  ],
+  "seconds": 11.6,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "S5",
+  "answer": "Ich kann diese Frage leider nicht beantworten. Der Swiss Grounding Service, der mir zur Verfügung steht, deckt nur Informationen zu der Schweiz ab. Konstanz liegt in Deutschland, daher kann ich keine Auskünfte zum deutschen Rundfunkbeitrag geben.\n\nFür Informationen zu den Rundfunkgebühren in Deutschland empfehle ich, die Website der Rundfunkanstalt Ihres Bundeslandes zu besuchen oder den ARD/ZDF/Deutschlandfunk Gebührenservice zu kontaktieren.\n\nFalls Sie später nach der Schweiz umziehen und Fragen zum Schweizer Rundfunkbeitrag (Serafe) haben, kann ich Ihnen gerne helfen!",
+  "tools": [],
+  "seconds": 7.6,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q6",
+  "answer": "Der aktuelle hypothekarische Referenzzinssatz für Mietverhältnisse beträgt **1,25 %**. Dieser Satz ist seit dem 2. September 2025 gültig und bleibt unverändert bis zum 2. September 2026.\n\nDer Referenzzinssatz ist die Grundlage für Mietanpassungen gemäss Artikel 12a des Bundesgesetzes über den Mietvertrag. Die nächste Publikation findet am 1. Dezember 2026 statt.\n\n**Quelle:** Federal Office for Housing (BWO) – https://www.bwo.admin.ch/de/referenzzinssatz",
+  "tools": [
+   "swiss_rates"
+  ],
+  "seconds": 9.4,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q7",
+  "answer": "Selon l'**article 335c du Code des obligations (CO)**, le délai de congé pendant la première année de service est **d'un mois**, pour la fin d'un mois.\n\nVoici le texte exact :\n\n> Le contrat peut être résilié pour la fin d'un mois moyennant un délai de congé d'**un mois pendant la première année de service**, de deux mois de la deuxième à la neuvième année de service, de trois mois ultérieurement.\n\n**Éléments importants :**\n- Ce délai peut être modifié par accord écrit, contrat-type de travail ou convention collective\n- Des délais inférieurs à un mois ne peuvent être fixés que par convention collective et pour la première année de service\n- La résiliation doit être donnée pour la fin d'un mois\n\nSource : Fedlex (Federal Chancellery) – https://www.fedlex.admin.ch/eli/cc/27/317_321_377/fr#art_335_c (version en vigueur depuis 2026-01-01)",
+  "tools": [
+   "swiss_federal_law"
+  ],
+  "seconds": 13.2,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q8",
+  "answer": "A Bellinzona vivono **45'828 persone** secondo i dati ufficiali del 2025. Fonte: Ufficio Federale di Statistica (UST) – https://www.pxweb.bfs.admin.ch/pxweb/de/px-x-0102010000_101/\n\nBellinzona è il capoluogo del Canton Ticino e comprende diverse località oltre al centro storico.",
+  "tools": [
+   "swiss_place_info"
+  ],
+  "seconds": 12.1,
+  "content_ok": true,
+  "cited": true,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q9",
+  "answer": "Die nächste Verbindung von Zürich HB nach Bellinzona morgen (26. September) um 8 Uhr:\n\n**Verbindung 1 (nächste Abfahrt):**\n- **Abfahrt:** 08:05 Uhr (Gleis 8)\n- **Ankunft:** 09:42 Uhr\n- **Fahrtdauer:** 1h 37min\n- **Umsteigen:** 1× in Arth-Goldau\n  - IR46: Zürich HB 08:05 → Arth-Goldau 08:45\n  - IC21: Arth-Goldau 08:49 (Gleis 5) → Bellinzona 09:42\n\n**Alternative Verbindungen:**\n- **08:33 Uhr direkter:** EC-Zug, ankommt 10:12 Uhr (1h 39min, ohne Umsteigen, Gleis 7)\n- **09:05 Uhr direkter:** IC2, ankommt 10:42 Uhr (1h 37min, ohne Umsteigen, Gleis 7)\n\nDie Zeiten sind Planzeiten (es können Verspätungen auftreten).\n\n**Quelle:** [Open Data Platform Mobility Switzerland – transport.opendata.ch](https://transport.opendata.ch/v1/connections?from=Z%C3%BCrich%20HB&to=Bellinzona)\n\nZum Buchen und für aktuelle Informationen können Sie die [SBB-Website](https://www.sbb.ch/) nutzen.",
+  "tools": [
+   "public_transport"
+  ],
+  "seconds": 15.3,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q10",
+  "answer": "Yes, **Swisscom AG is registered** in the Swiss commercial register. Its details are:\n\n- **UID**: CHE-102.753.938\n- **Legal seat**: Bern, canton BE\n- **Address**: Alte Tiefenaustrasse 6, 3050 Bern\n- **VAT status**: Registered for VAT\n\nSource: Federal Statistical Office FSO (UID register) – https://www.uid.admin.ch/Detail.aspx?uid_id=CHE102753938",
+  "tools": [
+   "company_register"
+  ],
+  "seconds": 10.1,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q11",
+  "answer": "Am **27. September 2026** wird auf Bundesebene über zwei Volksinitiativen abgestimmt:\n\n1. **Volksinitiative «Wahrung der schweizerischen Neutralität (Neutralitätsinitiative)»** – Initiative zur Wahrung der Schweizer Neutralität\n\n2. **Volksinitiative «Für eine sichere Ernährung – durch Stärkung einer nachhaltigen inländischen Produktion, mehr pflanzliche Lebensmittel und sauberes Trinkwasser (Ernährungsinitiative)»** – Initiative für Ernährungssicherheit durch nachhaltige Produktion, mehr pflanzliche Lebensmittel und sauberes Trinkwasser\n\nQuelle: Federal Statistical Office FSO – https://www.admin.ch/de/abstimmungstermine",
+  "tools": [
+   "federal_votes"
+  ],
+  "seconds": 10.7,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q12",
+  "answer": "**Ja, Sie müssen Mehrwertsteuer bezahlen.**\n\nNach den offiziellen Schweizer Zollbestimmungen unterliegen Online-Bestellungen aus dem Ausland (einschliesslich Deutschland) der Mehrwertsteuer. Hier sind die wichtigsten Punkte:\n\n**Keine Freigrenze:**\nEs gibt **keine 300-Franken-Freigrenze** für Online-Einkäufe aus dem Ausland. Der Grund: Waren, die Sie im Internet bestellen, gelten als Handelswaren (nicht als Reisegepäck für den Privatgebrauch). Die 300-Franken-Freigrenze gilt nur für Waren, die Sie persönlich vor Ort im Ausland kaufen und für den Privatgebrauch mitbringen.\n\n**Was Sie bezahlen müssen:**\n- **Mehrwertsteuer** (aktuell 8,1% in der Schweiz)\n- Eventuell **Zollabgaben** (je nach Warenart)\n- **Versand- und Verzollungskosten** der Transportfirma\n\n**Beispiel bei Ihrem 50-Franken-Paket:**\nSie müssen mindestens die Mehrwertsteuer von ca. 4 Franken bezahlen, plus eventuell Zölle und Bearbeitungsgebühren.\n\n**Ausnahme – Geschenke:**\nGeschenke von Privatpersonen bis 100 CHF Warenwert sind abgabenfrei, müssen aber deutlich als Geschenk gekennzeichnet sein.\n\nQuelle: Bundesamt für Zoll und Grenzsicherheit BAZG – https://www.bazg.admin.ch/de/internetshopping-verzollung-von-paketen-schweiz",
+  "tools": [
+   "search_official_info",
+   "read_official_page",
+   "search_official_info",
+   "read_official_page"
+  ],
+  "seconds": 25.6,
+  "content_ok": false,
+  "cited": true,
+  "pass": false
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q13",
+  "answer": "Le prochain ramassage du carton à Zurich 8003 est **jeudi 1er octobre 2026**.\n\nLe ramassage du carton se fait chaque jeudi. Les prochains après celui-ci sont prévus pour les 8, 15, 22 et 29 octobre, puis tous les jeudis jusqu'en décembre.\n\nSource : Stadt Zürich – https://data.stadt-zuerich.ch/dataset?q=entsorgungskalender",
+  "tools": [
+   "waste_collection"
+  ],
+  "seconds": 11.7,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q14",
+  "answer": "Es gibt mehrere Gemeinden mit dem Namen Buchs in der Schweiz. Welche meinen Sie?\n\n- Buchs (ZH) – Kanton Zürich\n- Buchs (SG) – Kanton St. Gallen\n- Buchs (AG) – Kanton Aargau",
+  "tools": [
+   "swiss_place_info"
+  ],
+  "seconds": 13.2,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q15",
+  "answer": "The capital of Australia is **Canberra**, which is located in the Australian Capital Territory (ACT). \n\nAs of recent data, Canberra's population is approximately **460,000–470,000 people** (including the broader metropolitan area). The city itself was purpose-built as a capital in the early 1900s as a compromise between Melbourne and Sydney, which were competing to be the nation's seat of government.",
+  "tools": [],
+  "seconds": 5.7,
+  "content_ok": false,
+  "cited": null,
+  "pass": false
+ },
+ {
+  "runner": "claude:haiku",
+  "id": "Q16",
+  "answer": "Purtroppo, l'informazione sui costi dell'abbonamento annuale della piscina comunale di Lugano non è presente nelle pagine ufficiali indicizzate dal servizio di grounding svizzero.\n\nPer ottenere i dettagli sui prezzi degli abbonamenti alla piscina comunale di Lugano, ti consiglio di contattare direttamente:\n\n**Sito ufficiale del Comune di Lugano:** https://www.lugano.ch/\n\nPotrai cercare nella sezione dedicata ai servizi e alle strutture sportive, oppure contattare direttamente l'amministrazione comunale di Lugano per informazioni specifiche sulle tariffe attuali.",
+  "tools": [
+   "search_official_info",
+   "search_official_info"
+  ],
+  "seconds": 16.0,
+  "content_ok": true,
+  "cited": null,
+  "pass": true
+ }
+]

@@ -101,16 +101,19 @@ def classify(url: str) -> Authority | None:
         return Authority(FEDERAL_NAMES[key], "federal", "CH")
     if host.endswith(".admin.ch"):
         return Authority(host, "federal", "CH")
+    # The most specific domain wins: the City of St. Gallen publishes on stadt.sg.ch, under the canton's
+    # sg.ch, and its pages must be attributed to the city, not to the canton.
+    municipal = _municipal_domains()
+    candidates = []
     if key := _suffix_match(host, CANTON_DOMAINS):
         canton = CANTON_DOMAINS[key]
-        return Authority(f"Canton of {canton} ({key})", "cantonal", f"CH-{canton}")
+        candidates.append((key, Authority(f"Canton of {canton} ({key})", "cantonal", f"CH-{canton}")))
     if key := _suffix_match(host, SEMI_OFFICIAL):
-        return Authority(SEMI_OFFICIAL[key], "semi-official", "CH")
+        candidates.append((key, Authority(SEMI_OFFICIAL[key], "semi-official", "CH")))
     if key := _suffix_match(host, MUNICIPAL_EXTRA):
         m = register()["by_bfs"][MUNICIPAL_EXTRA[key]]
-        return Authority(f"Municipality of {m.name} ({key})", "municipal", m.jurisdiction)
-    municipal = _municipal_domains()
+        candidates.append((key, Authority(f"Municipality of {m.name} ({key})", "municipal", m.jurisdiction)))
     if key := _suffix_match(host, municipal):
         name, jurisdiction = municipal[key]
-        return Authority(name, "municipal", jurisdiction)
-    return None
+        candidates.append((key, Authority(name, "municipal", jurisdiction)))
+    return max(candidates, key=lambda c: len(c[0]))[1] if candidates else None

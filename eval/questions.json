@@ -22,13 +22,15 @@
   {"id": "Q11", "lang": "de", "question": "Worüber wird am 27. September 2026 auf Bundesebene abgestimmt?",
    "behavior": "answer", "expect_any": ["Neutralit"]},
   {"id": "Q12", "lang": "de", "question": "Ich bestelle ein Paket aus Deutschland im Wert von 50 Franken. Muss ich Mehrwertsteuer bezahlen?",
-   "behavior": "answer", "expect_any": ["\\b5 (Schweizer )?Franken", "CHF 5\\b", "\\b62\\b", "nicht erhoben"], "expect_cite": ["bazg"]},
+   "behavior": "answer", "expect_any": ["\\b5 (Schweizer )?Franken", "CHF 5\\b", "\\b62\\b", "nicht erhoben"], "expect_cite": ["bazg", "ch\\.ch/(de|fr|it|en)/(zoll|douane|dogana|customs)/"]},
   {"id": "Q13", "lang": "fr", "question": "Quand est le prochain ramassage du carton à Zurich 8003?",
    "behavior": "answer", "expect_any": ["20\\d\\d-\\d\\d-\\d\\d", "\\d{1,2}(er)? (octobre|novembre|décembre)", "\\d{1,2}\\.\\d{1,2}\\."]},
   {"id": "Q14", "lang": "de", "question": "Wie viele Einwohner hat Buchs?",
    "behavior": "ask_back", "expect_any": ["welche[sn]? Buchs", "Buchs \\(?(ZH|SG|AG)", "mehrere"]},
   {"id": "Q15", "lang": "en", "question": "What is the capital of Australia and how many people live there?",
-   "behavior": "decline", "expect_any": ["not about Switzerland", "only (covers?|about) Switzerland", "Swiss", "outside"]},
+   "behavior": "general", "expect_any": ["not about Switzerland", "only (covers?|about) Switzerland", "Swiss (official )?information only", "outside", "(does not|doesn.t|cannot|can.t) cover"]},
   {"id": "Q16", "lang": "it", "question": "Quanto costa l'abbonamento annuale della piscina comunale di Lugano?",
-   "behavior": "decline_or_cite", "expect_any": ["non (è|sono) (disponibil|copert)", "non ho trovato", "non (posso|riesco)", "lugano\\.ch"]}
+   "behavior": "decline_or_cite", "expect_any": ["non (è|sono) (disponibil|copert)", "non ho trovato", "non (posso|riesco)", "lugano\\.ch"]},
+  {"id": "Q17", "lang": "fr", "question": "Comment annoncer mon arrivée à Berne après mon déménagement?",
+   "behavior": "answer", "expect_any": ["Einwohnerdienst", "habitants", "Predigergasse"], "expect_cite": ["bern\\.ch/themen/zuzug"]}
 ]

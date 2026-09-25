@@ -1,17 +1,37 @@
 [project]
 name = "swiss-grounding-mcp"
 version = "0.1.0"
-description = "Add your description here"
+description = "MCP server with authoritative, cited answers about Switzerland from official federal, cantonal and municipal sources"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { email = "s.hazemi.jebelli@gmail.com" }
+]
+keywords = ["mcp", "model-context-protocol", "switzerland", "open-government-data", "grounding"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 requires-python = ">=3.13"
 dependencies = [
     "fastmcp==4.0.9",
     "httpx>=0.28",
     "protego>=0.4",
+    "starlette>=0.40",
     "trafilatura>=2.0",
+    "uvicorn>=0.30",
 ]
+
+[project.optional-dependencies]
+# hybrid search: local multilingual embeddings merged with keyword search (see README "Search")
+semantic = ["fastembed>=0.8", "numpy>=2"]
+
+[project.urls]
+Homepage = "https://github.com/Gastaan/swiss-grounding-mcp"
+Issues = "https://github.com/Gastaan/swiss-grounding-mcp/issues"
 
 [project.scripts]
 swiss-grounding-mcp = "swiss_grounding_mcp:main"
@@ -19,6 +39,11 @@ swiss-grounding-mcp = "swiss_grounding_mcp:main"
 [build-system]
 requires = ["uv_build>=0.11.7,<0.12.0"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# the index ships compressed; the copy unpacked on first start must not end up in packages
+source-exclude = ["**/data/index.sqlite", "**/data/*.unpack", "**/data/*.tmp"]
+wheel-exclude = ["**/data/index.sqlite", "**/data/*.unpack", "**/data/*.tmp"]
 
 [dependency-groups]
 build = [
