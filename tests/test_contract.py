@@ -120,6 +120,9 @@ async def test_invalid_arguments_are_tool_errors(client):
 
 
 def test_authority_classification():
+    # the most specific domain wins: the City of St. Gallen publishes under the canton's sg.ch
+    assert classify("https://www.stadt.sg.ch/home/x.html").jurisdiction == "CH-SG-3203"
+    assert classify("https://www.sg.ch/steuern.html").jurisdiction == "CH-SG"
     assert classify("https://www.vd.ch/x").jurisdiction == "CH-VD"
     assert classify("https://www.fedlex.admin.ch/eli/cc/27/317_321_377/de").level == "federal"
     assert classify("https://www.lugano.ch/").level == "municipal"

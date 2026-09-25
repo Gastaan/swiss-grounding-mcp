@@ -76,7 +76,7 @@ CITY_SITES = [
     "https://www.stadt-zuerich.ch", "https://www.geneve.ch", "https://www.lausanne.ch", "https://www.bern.ch",
     "https://stadt.winterthur.ch", "https://www.stadtluzern.ch", "https://www.stadt.sg.ch",
     "https://www.lugano.ch", "https://www.biel-bienne.ch", "https://www.thun.ch", "https://www.bellinzona.ch",
-    "https://www.fribourg.ch",
+    "https://www.ville-fribourg.ch",  # the city's own domain (fribourg.ch is not the municipality's)
 ]
 SEED_URLS = [
     "https://www.vd.ch/mobilite/automobile-et-navigation/permis/echanger-un-permis-etranger",

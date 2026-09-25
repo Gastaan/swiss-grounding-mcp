@@ -89,7 +89,7 @@ the MCP Inspector CLI and the FastMCP client, including the legacy `initialize` 
 
 | Topic | Geography | Source (authority) | Freshness / reference period |
 |---|---|---|---|
-| Procedures, rules, fees, deadlines — permits & migration, moving & registration, taxes, social insurance (AHV/IV), unemployment, driving licences & vehicles, customs & parcels, schools, housing, voting, civil status… | Federal (ch.ch in de/fr/it/rm/en, federal offices, AHV/IV, arbeit.swiss), **cantonal portals of 23 cantons** (see limitations), 12 largest cities | Full-text index of **10,630 official pages / 46,952 passages**, plus live reading of any official page | Index built 2026-09-25, refreshed weekly; `read_official_page` fetches live text |
+| Procedures, rules, fees, deadlines — permits & migration, moving & registration, taxes, social insurance (AHV/IV), unemployment, driving licences & vehicles, customs & parcels, schools, housing, voting, civil status… | Federal (ch.ch in de/fr/it/rm/en, federal offices, AHV/IV, arbeit.swiss), **cantonal portals of 23 cantons** (see limitations), city pages of Lucerne, Lugano, Winterthur, Biel/Bienne, St. Gallen, Bern, Geneva, Lausanne and Thun | Full-text index of **10,630 official pages / 46,952 passages**, plus live reading of any official page | Index built 2026-09-25, refreshed weekly; `read_official_page` fetches live text |
 | Federal law — any act and article, current consolidated version | Federal | Fedlex (Federal Chancellery) | Live; version in force today |
 | Mandatory health insurance premiums (cheapest offers per municipality, age, deductible, model) | All 2,110 municipalities (premium regions) | FOPH premium open data (same data as priminfo.admin.ch) | 2026 premiums; 2027 added when FOPH publishes them (end of September) |
 | School holidays and public holidays | All 26 cantons; municipality level where published (e.g. Scuol, Zürich) | OpenHolidays (aggregated official lists), EDK list, municipality website | 2025–2027 |
@@ -106,9 +106,11 @@ the MCP Inspector CLI and the FastMCP client, including the legacy `initialize` 
 - **Anything outside Switzerland** — e.g. the German *Rundfunkbeitrag* in Konstanz. The server says so.
 - **Cantons GR, BL and SH** block or do not serve text to automated clients, so their cantonal
   pages are not in the index (ch.ch and federal pages still apply; `read_official_page` reports
-  the block honestly). VS and TI are only partially indexed.
-- Municipal web pages are indexed only for the 12 largest cities; for other municipalities the
-  server returns the official website and can read a given page live.
+  the block honestly). VS (7 pages), TI (45) and TG (52) are only partly indexed.
+- Municipal web pages are indexed for Lucerne, Lugano, Winterthur, Biel/Bienne, St. Gallen, Bern, Geneva, Lausanne and Thun (120–250 pages each; Lausanne 66, Thun 32). Zürich has
+  only a few pages, and Bellinzona and Fribourg none yet (the next refresh crawls Fribourg's own domain,
+  ville-fribourg.ch). For other municipalities the server returns the official website and can read a
+  given page live; waste, holidays, premiums and place facts cover all municipalities through their tools.
 - Cantonal **law texts**, individual **tax calculations** and **weather forecasts** are not provided.
 - Waste calendars exist only where municipalities publish open data (list above); elsewhere the
   server says so and links the municipality.
@@ -323,6 +325,8 @@ The stdio transport has no network exposure. For `--transport http`:
 uv run --group build python scripts/build_places.py
 uv run --group build python scripts/build_premiums.py 2026 2027
 uv run --group build python scripts/build_index.py      # ~20 min cold, a few minutes when cached
+uv run --extra semantic --group build python scripts/build_embeddings.py   # ~15 min, after the index
+uv run python scripts/relabel_index.py                  # after changing authorities.py, without a rebuild
 ```
 
 `.github/workflows/refresh-data.yml` rebuilds everything weekly (the embeddings right after the index, so they always match) and opens a pull request that includes the search-quality numbers.
