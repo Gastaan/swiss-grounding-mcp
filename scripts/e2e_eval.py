@@ -30,16 +30,21 @@ DEFAULT_RUNS = [
 ]
 
 
-def claude(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
+def _claude(model: str, question: str, workdir: Path, env: dict | None, mode: str) -> dict:
+    """mode 'mcp': this server only; 'web': no MCP server, web search and fetch allowed (the usual way to
+    answer without this server); 'base': no MCP server and no tools, the model's own knowledge only."""
+    servers = {"swiss": {"type": "stdio", "command": SERVER[0], "args": [], **({"env": env} if env else {})}}
     cfg = workdir / "mcp.json"
-    cfg.write_text(json.dumps({"mcpServers": {"swiss": {"type": "stdio", "command": SERVER[0], "args": [],
-                                                        **({"env": env} if env else {})}}}))
-    cmd = ["claude", "-p", question, "--setting-sources", "project", "--model", model, "--mcp-config", str(cfg), "--strict-mcp-config",
-           "--allowedTools", "mcp__swiss", "--disallowedTools", "WebSearch", "WebFetch", "Bash", "Read", "Glob", "Grep",
+    cfg.write_text(json.dumps({"mcpServers": servers if mode == "mcp" else {}}))
+    allowed = {"mcp": ["mcp__swiss"], "web": ["WebSearch", "WebFetch"], "base": []}[mode]
+    blocked = ["Bash", "Read", "Glob", "Grep"] + ([] if mode == "web" else ["WebSearch", "WebFetch"])
+    cmd = ["claude", "-p", question, "--setting-sources", "project", "--model", model, "--mcp-config", str(cfg),
+           "--strict-mcp-config", *(["--allowedTools", *allowed] if allowed else []), "--disallowedTools", *blocked,
+           *(["--system-prompt", ASSISTANT_PROMPT] if ASSISTANT_PROMPT else []),
            "--output-format", "stream-json", "--verbose", "--no-session-persistence"]
     out = subprocess.run(cmd, capture_output=True, text=True, timeout=300, cwd=workdir,
                          stdin=subprocess.DEVNULL).stdout
-    answer, tools = "", []
+    answer, tools, web_tools = "", [], []
     for line in out.splitlines():
         try:
             ev = json.loads(line)
@@ -49,9 +54,24 @@ def claude(model: str, question: str, workdir: Path, env: dict | None = None) ->
             for block in ev["message"].get("content", []):
                 if block.get("type") == "tool_use" and block["name"].startswith("mcp__swiss__"):
                     tools.append(block["name"].removeprefix("mcp__swiss__"))
+                elif block.get("type") == "tool_use" and block["name"] in ("WebSearch", "WebFetch"):
+                    web_tools.append(block["name"])
         if ev.get("type") == "result":
             answer = ev.get("result") or ""
-    return {"answer": answer, "tools": tools}
+    # "tools" counts calls to this server (the checks use it); web calls are recorded separately
+    return {"answer": answer, "tools": tools, "web_tools": web_tools}
+
+
+def claude(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
+    return _claude(model, question, workdir, env, "mcp")
+
+
+def claude_web(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
+    return _claude(model, question, workdir, env, "web")
+
+
+def claude_base(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
+    return _claude(model, question, workdir, env, "base")
 
 
 def opencode(model: str, question: str, workdir: Path, env: dict | None = None) -> dict:
@@ -80,7 +100,10 @@ def opencode(model: str, question: str, workdir: Path, env: dict | None = None) 
     return {"answer": "\n".join(answer), "tools": tools}
 
 
-RUNNERS = {"claude": claude, "opencode": opencode}
+# claude-web and claude-base are baselines without this server, for comparison
+ASSISTANT_PROMPT: str | None = None  # --assistant-prompt: same system prompt for every Claude run
+
+RUNNERS = {"claude": claude, "claude-web": claude_web, "claude-base": claude_base, "opencode": opencode}
 
 
 # Asking back can be a question or a polite request ("Bitte teilen Sie mir mit, wo Sie wohnen.").
@@ -125,7 +148,15 @@ def run_one(runner: str, q: dict) -> dict:
         except subprocess.TimeoutExpired:
             res = {"answer": "", "tools": [], "error": "timeout"}
         res["seconds"] = round(time.monotonic() - started, 1)
-    return {"runner": runner, "id": q["id"], **res, **score(q, res["answer"], res["tools"])}
+    if LIMIT.search(res["answer"] or ""):  # the client was blocked, not wrong: keep it out of the scores
+        res["error"] = "usage limit"
+    scored = score(q, res["answer"], res["tools"])
+    if res.get("error"):
+        scored["pass"] = False
+    return {"runner": runner, "id": q["id"], **res, **scored}
+
+
+LIMIT = re.compile(r"hit your (session|usage|weekly|monthly spend|spend) limit|usage limit reached|rate limit exceeded", re.I)
 
 
 def load_questions(path: Path = ROOT / "eval" / "questions.json") -> list[dict]:
@@ -143,9 +174,14 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--questions", default=str(ROOT / "eval" / "questions.json"),
                     help="question file (e.g. eval/practice_questions.json)")
+    ap.add_argument("--assistant-prompt", default=None,
+                    help="replace Claude Code's coding-assistant system prompt for every Claude run, so runs with "
+                         "and without this server differ only in their tools (used for the baseline comparison)")
     ap.add_argument("--rescore", metavar="RESULTS_JSON",
                     help="apply the current checks to recorded answers (no model calls) and rewrite the report")
     args = ap.parse_args()
+    global ASSISTANT_PROMPT
+    ASSISTANT_PROMPT = args.assistant_prompt
     questions = load_questions(Path(args.questions))
     if args.rescore:
         path = Path(args.rescore)
@@ -153,6 +189,8 @@ def main() -> None:
         by_id = {q["id"]: q for q in questions}
         for x in results:
             x.update(score(by_id[x["id"]], x["answer"], x["tools"]))
+            if LIMIT.search(x["answer"] or ""):  # blocked by the client's usage limit, not a wrong answer
+                x["error"], x["pass"] = "usage limit", False
         runs = list(dict.fromkeys(x["runner"] for x in results))
         write_report(results, runs, [q for q in questions if any(x["id"] == q["id"] for x in results)],
                      path.stem, "re-scored with the current checks; answers unchanged")
@@ -162,7 +200,7 @@ def main() -> None:
         questions = [q for q in questions if q["id"] in args.only.split(",")]
     with ThreadPoolExecutor(args.workers) as pool:
         results = list(pool.map(lambda job: run_one(*job), [(r, q) for r in runs for q in questions]))
-    write_report(results, runs, questions, datetime.now().strftime("%Y-%m-%dT%H%M"))
+    write_report(results, runs, questions, datetime.now().strftime("%Y-%m-%dT%H%M%S"))
 
 
 def write_report(results: list[dict], runs: list[str], questions: list[dict], stamp: str, note: str = "") -> None:
@@ -173,15 +211,19 @@ def write_report(results: list[dict], runs: list[str], questions: list[dict], st
              "| run | pass | avg tool calls | avg seconds |", "|---|---|---|---|"]
     for r in runs:
         rows = [x for x in results if x["runner"] == r]
-        lines.append(f"| {r} | {sum(x['pass'] for x in rows)}/{len(rows)} | "
-                     f"{sum(len(x['tools']) for x in rows) / len(rows):.1f} | "
+        calls = sum(len(x["tools"]) + len(x.get("web_tools", [])) for x in rows)
+        errors = sum(1 for x in rows if x.get("error"))
+        lines.append(f"| {r} | {sum(x['pass'] for x in rows)}/{len(rows) - errors}"
+                     + (f" ({errors} blocked)" if errors else "") + " | "
+                     f"{calls / len(rows):.1f} | "
                      f"{sum(x['seconds'] for x in rows) / len(rows):.0f} |")
     lines += ["", "| id | " + " | ".join(runs) + " |", "|---|" + "---|" * len(runs)]
     for q in questions:
         cells = []
         for r in runs:
             x = next(x for x in results if x["runner"] == r and x["id"] == q["id"])
-            cells.append(("✅" if x["pass"] else "❌") + f" {len(x['tools'])} calls")
+            n = len(x["tools"]) + len(x.get("web_tools", []))
+            cells.append(("✅" if x["pass"] else "❌") + f" {n} calls")
         lines.append(f"| {q['id']} | " + " | ".join(cells) + " |")
     report = "\n".join(lines)
     (out_dir / f"{stamp}.md").write_text(report + "\n")

@@ -434,6 +434,28 @@ OPENAI_API_KEY=... uv run python scripts/e2e_eval.py    # Claude Code (sonnet, h
 It runs `eval/questions.json` — the 5 published sample questions plus 11 more (de/fr/it/rm/en,
 including ask-back, out-of-scope and not-covered cases) — and writes `eval/results/<date>.md`.
 
+### Compared with Claude without this server
+
+The same 28 questions (the 17 above and the organisers' 11 practice cases), Claude Code with Sonnet,
+three ways that differ only in their tools (same neutral assistant prompt, `--assistant-prompt`):
+this server; web search and fetch, no MCP server (`claude-web`); no tools at all (`claude-base`).
+Results: `eval/results/2026-09-25T111906.md` and `…T112059.md`; 9 runs were blocked by the account's
+spend limit and are left out, not counted as wrong.
+
+| Mode | 17 questions | Practice cases | Avg calls | Avg seconds | Links to official Swiss authorities |
+|---|---|---|---|---|---|
+| **With this server** | **16/17** | **11/11** | 1.2 | 14 | **94%** of 34 links |
+| Web search, no server | 11/17 | 7/10 | 2.4 searches | 28 | 72% of 67 links (others: Wikipedia, bonus.ch, bern.com, jurawelt.com…) |
+| Model knowledge only | 6/17 | 1/3 | 0 | 15 | 1 link in 20 answers |
+
+Reading the answers: web search often reaches the right figure but mixes in comparison sites, news and
+tourism pages, rounds official figures ("circa 45.000" inhabitants of Bellinzona instead of the FSO's
+45'828), dates the reference rate by its publication rather than its effective date, answers "where I
+live" questions by saying it has no access instead of asking for the municipality, and gives canton-wide
+advice where the city's own page applies (registering in Bern). It is also slower: twice the calls and
+twice the time. Without any tools the model mostly declines or answers from dated knowledge.
+Question Q15 ("capital of Australia") is answered from general knowledge in all three modes.
+
 ### Latest end-to-end results (2026-09-25, `eval/results/2026-09-25T0606.md`, hybrid search)
 
 All four runs of the evaluation setup (2 clients x 2 LLMs), scored with the current checks:
