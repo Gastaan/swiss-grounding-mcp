@@ -1,0 +1,45 @@
+[project]
+name = "swiss-grounding-mcp"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { email = "s.hazemi.jebelli@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastmcp==4.0.9",
+    "httpx>=0.28",
+    "protego>=0.4",
+    "trafilatura>=2.0",
+]
+
+[project.scripts]
+swiss-grounding-mcp = "swiss_grounding_mcp:main"
+
+[build-system]
+requires = ["uv_build>=0.11.7,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+build = [
+    "openpyxl>=3.1",
+]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.25",
+    "ruff>=0.13",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["live: calls the real public sources (network)"]
+addopts = "-m 'not live'"
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]  # long lines are mostly data tables

@@ -1,0 +1,29 @@
+name: refresh-data
+# Rebuild the shipped data from the official sources and open a pull request with the result.
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked --group build
+      - run: uv run --group build python scripts/build_places.py
+      - run: uv run --group build python scripts/build_premiums.py $(date +%Y) $(( $(date +%Y) + 1 ))
+      - run: uv run --group build python scripts/build_index.py
+      - run: uv run pytest -q
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data-refresh
+          title: "Data refresh ${{ github.run_id }}"
+          commit-message: "Refresh municipality register, premiums and search index"
+          body: "Automated weekly rebuild from the official sources (scripts/build_*.py)."

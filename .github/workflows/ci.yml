@@ -1,0 +1,22 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run ruff check src scripts tests
+      - run: uv run pytest -q
+      - name: MCP smoke test over HTTP
+        run: |
+          uv run swiss-grounding-mcp --transport http --port 8765 &
+          for i in $(seq 1 30); do curl -sf localhost:8765/health && break; sleep 1; done
+          uv run fastmcp list http://127.0.0.1:8765/mcp
+      - name: Live source checks (informational)
+        continue-on-error: true
+        run: uv run pytest -q -m live

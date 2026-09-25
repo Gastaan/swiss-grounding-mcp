@@ -1,0 +1,24 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv
+
+# The index ships as index.sqlite.gz; the unpacked copy is created on first start
+src/swiss_grounding_mcp/data/index.sqlite
+src/swiss_grounding_mcp/data/*.unpack
+src/swiss_grounding_mcp/data/*.tmp
+
+# Local secrets
+.env
+*.env
+
+# Local agent settings
+.claude/

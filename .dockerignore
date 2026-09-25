@@ -1,0 +1,6 @@
+.venv
+.git
+.claude
+eval/results
+**/__pycache__
+src/swiss_grounding_mcp/data/index.sqlite
