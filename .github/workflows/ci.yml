@@ -22,3 +22,41 @@ jobs:
       - name: Live source checks (informational)
         continue-on-error: true
         run: uv run pytest -q -m live
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/swiss-grounding-mcp/models
+          key: embedding-model-paraphrase-multilingual-MiniLM-L12-v2
+      - name: Hybrid search (semantic extra) and search quality report
+        run: |
+          uv sync --locked --extra semantic
+          uv run --extra semantic pytest -q tests/test_semantic.py
+          uv run --extra semantic python scripts/search_eval.py
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t swiss-grounding-mcp .
+      - name: Run it and wait until healthy
+        run: |
+          docker run -d --name sgm -p 8000:8000 swiss-grounding-mcp
+          for i in $(seq 1 60); do curl -sf localhost:8000/health && break; sleep 1; done
+          curl -sf localhost:8000/health
+      - name: Runs as an unprivileged user
+        run: test "$(docker exec sgm id -u)" != "0"
+      - name: Serves hybrid search with the model baked in
+        run: curl -sf localhost:8000/health | grep -q '"search":"hybrid'
+      - name: Answers MCP requests
+        run: |
+          curl -sf -X POST localhost:8000/mcp -H 'Content-Type: application/json' \
+            -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | grep -q search_official_info
+      - name: Refuses a foreign browser origin
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8000/mcp -H 'Origin: http://evil.example' \
+            -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+            -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}')
+          test "$code" = "403"
+      - if: failure()
+        run: docker logs sgm

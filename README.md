@@ -16,14 +16,18 @@ Requires [uv](https://docs.astral.sh/uv/) (it installs Python 3.13 automatically
 
 ```sh
 git clone https://github.com/Gastaan/swiss-grounding-mcp && cd swiss-grounding-mcp
-uv sync                                                  # installs dependencies
-uv run swiss-grounding-mcp                               # stdio (for local MCP clients)
-uv run swiss-grounding-mcp --transport http --port 8000  # HTTP: http://localhost:8000/mcp
-curl localhost:8000/health
+uv sync --extra semantic                                                  # dependencies, with hybrid search
+uv run --extra semantic swiss-grounding-mcp                               # stdio (for local MCP clients)
+uv run --extra semantic swiss-grounding-mcp --transport http --port 8000  # HTTP: http://localhost:8000/mcp
+curl localhost:8000/health                                                # "search": "hybrid (…)"
 ```
 
-The prebuilt data (municipality register, health premiums, search index) ships in the repository;
-the first start unpacks the index (~1 s). Nothing else to download or configure.
+The prebuilt data (municipality register, health premiums, search index, passage vectors) ships in
+the repository; the first start unpacks the index (~1 s) and downloads the small embedding model once
+(~240 MB, in the background: searches use keywords until it is ready). No keys, nothing to configure.
+
+Lighter install without hybrid search (no model, ~130 MB fewer packages): drop `--extra semantic` from
+the commands above and from the client configuration below. See [Search](#search) for the difference.
 
 Docker:
 
@@ -31,6 +35,12 @@ Docker:
 docker build -t swiss-grounding-mcp .
 docker run -p 8000:8000 swiss-grounding-mcp               # http://localhost:8000/mcp
 ```
+
+The image (~1.4 GB, including hybrid search and its model) listens on all interfaces
+(`HOST=0.0.0.0`) as an unprivileged user and never downloads anything at runtime. When its port is
+reachable from outside a trusted network, add `-e SGM_AUTH_TOKEN=<secret>` (see [HTTP security](#http-security)).
+
+Without cloning (keyword search): `uvx --from git+https://github.com/Gastaan/swiss-grounding-mcp swiss-grounding-mcp`.
 
 ## Connect an MCP client
 
@@ -41,31 +51,34 @@ Use absolute paths. Replace `/path/to/swiss-grounding-mcp` with your clone.
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "swiss": {"type": "local", "command": ["uv", "run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"], "enabled": true},
-    "swiss-http": {"type": "remote", "url": "http://localhost:8000/mcp", "enabled": false}
+    "swiss": {"type": "local", "command": ["uv", "run", "--extra", "semantic", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"], "enabled": true, "timeout": 30000},
+    "swiss-http": {"type": "remote", "url": "http://localhost:8000/mcp", "enabled": false, "timeout": 30000}
   }
 }
 ```
+Set `timeout`: OpenCode waits only 5 s for an MCP request by default, while a slow official source can
+take longer; the server ends every tool call within `SGM_TOOL_TIMEOUT` (30 s) with a clean
+`source_error`, so a client timeout of 30 s or more lets that answer arrive.
 
 **Claude Code:**
 ```sh
-claude mcp add swiss -- uv run --directory /path/to/swiss-grounding-mcp swiss-grounding-mcp
+claude mcp add swiss -- uv run --extra semantic --directory /path/to/swiss-grounding-mcp swiss-grounding-mcp
 claude mcp add --transport http swiss-http http://localhost:8000/mcp
 ```
 
 **Claude Desktop** (`claude_desktop_config.json`; give the full path to `uv`, e.g. from `which uv`):
 ```json
-{"mcpServers": {"swiss": {"command": "/full/path/to/uv", "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
+{"mcpServers": {"swiss": {"command": "/full/path/to/uv", "args": ["run", "--extra", "semantic", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
 ```
 
 **VS Code** (`.vscode/mcp.json`):
 ```json
-{"servers": {"swiss": {"type": "stdio", "command": "uv", "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
+{"servers": {"swiss": {"type": "stdio", "command": "uv", "args": ["run", "--extra", "semantic", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
 ```
 
 **Cursor** (`.cursor/mcp.json`):
 ```json
-{"mcpServers": {"swiss": {"command": "uv", "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
+{"mcpServers": {"swiss": {"command": "uv", "args": ["run", "--extra", "semantic", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"]}}}
 ```
 
 Any client that speaks MCP over stdio or Streamable HTTP works. Tested with Claude Code, OpenCode,
@@ -99,10 +112,82 @@ the MCP Inspector CLI and the FastMCP client, including the legacy `initialize` 
 - Cantonal **law texts**, individual **tax calculations** and **weather forecasts** are not provided.
 - Waste calendars exist only where municipalities publish open data (list above); elsewhere the
   server says so and links the municipality.
-- School holidays come from OpenHolidays, which aggregates official lists; the official EDK list and
-  the municipality site are cited alongside for verification.
-- Search is keyword-based (SQLite FTS5/BM25 over all national languages); it works best with the
-  key nouns of the question, in any national language.
+- School holidays come from OpenHolidays, which aggregates official lists. Where the index holds the
+  responsible authority's own calendar (e.g. ge.ch, bern.ch, the school of Scuol), that page is cited
+  first; the EDK list and the municipality site are cited alongside. Periods are labelled by school type
+  where a canton publishes several (canton Bern: German- and French-speaking schools).
+- Registering on arrival in Lausanne is weak: the city's residents' office page is not in the index.
+- A question in another language than the place's pages first returns a language hint, not the page:
+  the assistant has to search again. In end-to-end runs of such a question (Q17, French question about
+  Bern), Sonnet followed the hint and answered from Bern's page; Haiku did so in 1 of 4 runs.
+- Search is keyword-based by default. With the optional `semantic` extra it is hybrid and also finds
+  pages worded differently or written in another language, but still misses some (see [Search](#search));
+  Romansh is not covered by the embedding model.
+
+## Challenge self-check
+
+The organisers' [practice cases](https://github.com/Swiss-ai-Weeks/swisscom-2026/tree/main/swiss-grounding-mcp#submission-self-check-pack)
+(read from the published file; their launcher was not run), checked against this server:
+
+| Practice case | Behaviour |
+|---|---|
+| Cardboard collection, no place given | asks only for the municipality (`needs_context`), never a date |
+| Geneva school holidays 2026 | cites `ge.ch/vacances-scolaires-2026-2027` first, no ask-back |
+| Licence fee in Konstanz | "Konstanz is in Germany, Swiss sources do not apply" (`not_covered`) |
+| Romansh: autumn holidays in Scuol | 10–25 Oct 2026, citing the Scuol school's own 2026/27 plan |
+| Current reference interest rate | BWO page, 1.25 % with its effective date, cached at most 6 h |
+| Registering on arrival in Lausanne, then Bern | Bern: the French question gets a hint that Bern publishes in German; searching again in German finds the city's own page (`bern.ch/themen/zuzug-umzug-wegzug`). Lausanne: **weak**, its residents' office page is not indexed and the federal ch.ch page ranks too low |
+| Which source supports a deadline | every citation carries the verbatim passage (`excerpt`) |
+| Source unavailable | a cached copy is labelled with its date (`data.stale_sources`), otherwise `source_error` with the link |
+
+Robots.txt and terms of use are respected by default and both are configurable (`SGM_RESPECT_ROBOTS`,
+`SGM_RESPECT_TERMS`, see Configuration). No credentials are needed.
+
+## Search
+
+`search_official_info` ranks passages of the index with SQLite FTS5/BM25 plus rules (the user's
+language, the most specific jurisdiction, how many query words a passage covers). With the optional
+`semantic` extra it becomes **hybrid**: a local multilingual embedding model
+(`paraphrase-multilingual-MiniLM-L12-v2`, ONNX, no API key) ranks the same passages by meaning, and the
+two rankings are merged (reciprocal-rank fusion, with the same preference for cantonal and municipal
+pages when a place is given). The two best keyword hits keep their places, so exact matches are never
+pushed out: with only one, passages about a neighbouring rule (the travellers' CHF 150 allowance) took
+the place of the CHF 5 parcel rule.
+
+```sh
+uv sync --extra semantic      # then start the server as usual; /health shows "search": "hybrid (…)"
+```
+
+Measured with `scripts/search_eval.py`: 38 hand-labelled questions whose answer is in the index (including
+the challenge's practice cases), plus 5 without one. A question counts as answered when an official page on its topic is among the 5 results
+the tool returns; for the "rule" questions the excerpt itself must state the rule (the CHF 5 parcel-VAT
+rule behind end-to-end question Q12).
+
+| Question kind | Keyword only | Hybrid |
+|---|---|---|
+| Uses the page's own words (9) | 9 | 9 |
+| Same language, other words (9) | 5 | 6 |
+| Another language than the only official page (15) | 2 | 8 |
+| The rule itself in an excerpt (5 phrasings of Q12) | 3 | 2 |
+| **Answered (38)** | **19** | **25** |
+| No correct page exists: says so instead of passing off another page (5) | 5 | 5 |
+
+For example, "exchange my foreign driving licence" in Lausanne now finds Vaud's French-only page, and
+"register my dog" in Basel finds the German one. Still missed: the Romansh school calendar of Scuol,
+German or English questions about Lausanne's French waste calendar, and parcel-VAT questions worded
+with terms the official pages do not use ("Freigrenze", French "colis").
+
+**Honesty is kept:** a result only counts as evidence if it covers at least half of the query's words
+or is close in meaning (cosine ≥ 0.7). With no such result the tool answers `not_found`, as before.
+The threshold was set so that none of the questions without a correct page gets through by similarity
+alone.
+
+**Costs:** ~240 MB for the model (downloaded once into `SGM_MODEL_DIR`, or at image build time in
+Docker) and ~130 MB of Python packages (`fastembed`, `onnxruntime`, `numpy` and their dependencies); `data/embeddings.npz` adds 12 MB
+(int8 vectors); about 20 ms per search; the weekly refresh re-embeds all passages (~15 min on a laptop,
+longer on CI runners). Without the extra, or with `SGM_SEMANTIC=off`, nothing of this is loaded.
+The server only uses embeddings built from the exact index it serves, and falls back to keyword search
+if the vector part fails.
 
 ## Tools
 
@@ -144,34 +229,86 @@ Every tool returns the same JSON object (as `structuredContent` with an `outputS
 - Places can be given as the user wrote them: *Genf, Ginevra, Genève*, *Schuls → Scuol*, *8003*,
   *Zurich 8003*, *Bahnhofstrasse 1, Zürich*. Ambiguous names return options; foreign places are flagged.
 - Invalid arguments are returned with `isError: true` and a readable message.
+- `data.stale_sources` appears when a live source was down and an earlier cached copy was used (at most
+  `SGM_MAX_STALE_HOURS` old); `guidance` then tells the assistant to give the user that date.
+- `search_official_info` sets `data.local_match: false` when a place was given but no cantonal or
+  municipal page matched as well as the federal ones; the summary says so and the municipality's
+  website is cited, so a federal page is not passed off as the local rule.
+- `search_official_info` sets `data.place_languages` (e.g. `["de"]`) when the question is in another
+  language than the place publishes in and none of the place's own pages matched. The summary and
+  guidance then ask the assistant to search again with its key words translated into that language: a
+  French question about registering in Bern leads to a German search that finds Bern's own page. The
+  place's languages come from the language of its pages in the index.
+- The output schema lists the top-level fields only; the fields inside `citations` and
+  `missing_context` are described once in the server instructions, which keeps `tools/list` small.
 
 ## Configuration
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `SGM_RESPECT_ROBOTS` | `true` | **Respect robots.txt** of every website fetched (RFC 9309, via Protego). Set `false` to disable. |
-| `SGM_RESPECT_TERMS` | `true` | Only use sources whose terms allow automated access (e.g. zefix.ch's web backend is not used; the official UID web service is). |
+| `SGM_RESPECT_ROBOTS` | `true` | **Respect robots.txt** of every website fetched (RFC 9309, via Protego), on every redirect hop. Set `false` to disable. |
+| `SGM_RESPECT_TERMS` | `true` | **Respect terms of use** recorded in `data/source_terms.json`: hosts whose terms do not allow automated access are never fetched (e.g. the zefix.ch web application; company data comes from the official UID register web service). Set `false` to disable. |
 | `SGM_OFFLINE` | `false` | Serve from cache only, never hit the network. |
 | `SGM_CACHE_DIR` | `~/.cache/swiss-grounding-mcp` | HTTP response cache. |
+| `SGM_CACHE_MAX_DAYS`, `SGM_CACHE_MAX_MB` | `30`, `500` | At startup, entries untouched this long are deleted, then the oldest until the cache fits. |
+| `SGM_MAX_STALE_HOURS` | `168` | When a source is down, serve an expired cached copy up to this old, labelled as stale. `0` disables. |
 | `SGM_HTTP_TIMEOUT` | `15` | Seconds per upstream request. |
+| `SGM_TOOL_TIMEOUT` | `30` | Seconds for a whole tool call, however many upstream requests it makes. |
 | `SGM_MIN_INTERVAL` | `0.5` | Minimum seconds between requests to the same host. |
-| `SGM_USER_AGENT` | browser-compatible string identifying `SwissGroundingMCP/<version> (+repo URL)` | Sent with every request. |
-| `SGM_TRANSPORT`, `HOST`, `PORT` | `stdio`, `0.0.0.0`, `8000` | Same as `--transport/--host/--port`. |
-| `SGM_LOG_LEVEL` | `INFO` | Logs go to stderr: one line per tool call (tool, status, bytes, ms) and per upstream fetch. |
+| `SGM_USER_AGENT` | `Mozilla/5.0 (compatible; SwissGroundingMCP/<version>; +<repo URL>)` | Standard crawler form: names the project and links to it. |
+| `SGM_TRANSPORT`, `HOST`, `PORT` | `stdio`, `127.0.0.1`, `8000` | Same as `--transport/--host/--port`. The Docker image sets `HOST=0.0.0.0`. |
+| `SGM_AUTH_TOKEN` | unset | HTTP only: require `Authorization: Bearer <token>` on `/mcp` and `/metrics` (`/health` stays open). |
+| `SGM_ALLOWED_ORIGINS` | none | HTTP only: comma-separated browser origins allowed to call `/mcp` (e.g. a web inspector). |
+| `SGM_RATE_LIMIT` | `600` | HTTP only: requests per minute per client IP. `0` disables. |
+| `SGM_SEMANTIC` | `auto` | `auto`: hybrid search when the `semantic` extra and `data/embeddings.npz` are present; `off`: keyword only. |
+| `SGM_MODEL_DIR` | `~/.cache/swiss-grounding-mcp/models` | Where the embedding model is stored (the Docker image bakes it into `/app/models`). |
+| `SGM_LOG_LEVEL` | `INFO` | Logs go to stderr: one line per tool call (tool, status, bytes, ms) and per upstream fetch (host and path, never query strings). |
 
-No credentials are required.
+No credentials are required to use the sources.
 
 ## Source etiquette, caching, resilience
 
 - robots.txt is checked per host and cached for 24 h; an unreachable robots.txt (5xx) means "disallow".
   Documented APIs (geo.admin.ch, Fedlex SPARQL, SNB, OpenHolidays, transport.opendata.ch, open-data
   portals) are called as APIs; website pages always go through the robots check.
-- Requests to the same host are paced (`SGM_MIN_INTERVAL`), identify the project in the User-Agent,
-  and are cached on disk with per-source TTLs (timetables 1 min, votes 10 min, rates 6 h, pages 6–24 h,
-  law 7 days). Expired entries are never served except in `SGM_OFFLINE` mode.
-- Upstream failures become `status: "source_error"` with the official link; no stack traces reach the model.
-- `read_official_page` only accepts recognised Swiss government domains (admin.ch, ch.ch, 26 cantons,
-  2,100+ municipal websites, bodies with a legal mandate), which also prevents SSRF.
+- Requests identify the project in the User-Agent (standard crawler form, not a browser string) and
+  are paced per host (`SGM_MIN_INTERVAL`). Identical requests already in flight share one upstream call.
+- Responses are cached on disk with per-source TTLs (timetables 1 min, weather and votes 10 min,
+  pages and rates 6 h, waste 12 h, register 1 day, law and holidays 7 days) and pruned at startup.
+- **When a source is down**, an expired copy up to `SGM_MAX_STALE_HOURS` old is served instead of an
+  error, and the result says so (`data.stale_sources`, with the retrieval date). Without a usable copy
+  the result is `status: "source_error"` with the official link; no stack traces reach the model.
+- **Every tool call has a time limit** (`SGM_TOOL_TIMEOUT`), so a chain of slow upstream calls ends in
+  a clear `source_error` instead of a client timeout.
+- `read_official_page` only reads recognised Swiss government domains (admin.ch, ch.ch, 26 cantons,
+  about 2,090 municipal websites, bodies with a legal mandate). **Redirects are followed one hop at a time**
+  and each target is checked again (allowlist, robots.txt, and never a private or reserved address),
+  so an official URL cannot lead to another site or into an internal network.
+
+## HTTP security
+
+The stdio transport has no network exposure. For `--transport http`:
+
+- The server listens on `127.0.0.1` unless `HOST`/`--host` says otherwise, and logs a warning when it
+  listens on another interface without a token.
+- **Origin check (DNS-rebinding protection):** browser requests whose `Origin` is not in
+  `SGM_ALLOWED_ORIGINS` get `403`. MCP clients send no `Origin` header and are unaffected. On localhost
+  the `Host` header is checked as well.
+- **Optional bearer token:** with `SGM_AUTH_TOKEN` set, `/mcp` and `/metrics` answer `401` without
+  `Authorization: Bearer <token>`. Clients pass it as a header, e.g.
+  `claude mcp add --transport http swiss-http http://host:8000/mcp --header "Authorization: Bearer <token>"`.
+- **Rate limit:** `SGM_RATE_LIMIT` requests per minute per client IP (token bucket), `429` with
+  `Retry-After` beyond that.
+- The Docker image runs as an unprivileged user.
+
+## Monitoring
+
+- `GET /health`: version, data build dates, index size, and `sources_with_errors` (hosts that failed
+  since start). Used by the Docker `HEALTHCHECK`.
+- `GET /metrics`: per tool (calls, statuses, average and maximum latency, average response size) and
+  per upstream host (requests, cache hits, errors, stale copies served, last error and when).
+- `.github/workflows/live-sources.yml` calls every real source daily and opens (or comments on) a
+  `source-broken` issue when one fails, e.g. after a page layout change.
 
 ## Data and refresh
 
@@ -180,6 +317,7 @@ No credentials are required.
 | `places.json` | `scripts/build_places.py` | 2,110 municipalities: BFS number, canton, district, premium region, postcodes, localities, population, website, holiday region |
 | `premiums_<year>.csv.gz`, `premium_meta_<year>.json` | `scripts/build_premiums.py 2026 2027` | Official FOPH premium table, insurer and plan names, municipality restrictions |
 | `index.sqlite.gz` | `scripts/build_index.py` | FTS5 index of official pages (robots.txt respected, per-host pacing) |
+| `embeddings.npz` | `scripts/build_embeddings.py` | Vectors of every index passage for hybrid search (int8), tagged with the index they belong to |
 
 ```sh
 uv run --group build python scripts/build_places.py
@@ -187,7 +325,16 @@ uv run --group build python scripts/build_premiums.py 2026 2027
 uv run --group build python scripts/build_index.py      # ~20 min cold, a few minutes when cached
 ```
 
-`.github/workflows/refresh-data.yml` rebuilds everything weekly and opens a pull request.
+`.github/workflows/refresh-data.yml` rebuilds everything weekly (the embeddings right after the index, so they always match) and opens a pull request that includes the search-quality numbers.
+
+Municipal websites come from Wikidata, which anyone can edit, and they decide which domains count as
+official. So only `.ch`/`.swiss` addresses that are not on a free hosting platform are accepted
+(`places.official_website`), reviewed exceptions live in `data/website_overrides.json`, and every
+weekly pull request lists each website that changed or was rejected, for review before merging.
+
+The data files are committed so that a clone runs offline and every build is reproducible. The cost
+is repository size (the index is ~19 MB compressed per refresh); if that becomes a problem, the files
+can move to release assets downloaded on first start.
 
 ## Architecture
 
@@ -199,16 +346,32 @@ MCP client ──stdio / Streamable HTTP──▶ server.py (FastMCP, 13 tools, 
   sources/  search (FTS5 index + live pages) · fedlex · premiums · holidays · waste · transport
             votes · economy · companies · weather
                                           │
-                  http.py: robots.txt · per-host pacing · disk cache with TTL
+   http.py: robots.txt · per-host pacing · disk cache with TTL · stale fallback · safe redirects
+                                          │
+      guards.py (HTTP only): bearer token · rate limit   + FastMCP Host/Origin check
 ```
 
 Python 3.13, `fastmcp` 4 (on the official `mcp` 2.x SDK), `httpx`, `protego`, `trafilatura`, SQLite FTS5.
-Adding a source = one module in `sources/` returning `ToolResult`, plus one decorated function in `server.py`.
+### Adding a source
+
+1. Write `sources/<topic>.py` with one async function that returns `models.ToolResult`. Resolve places
+   with `places.resolve()` and hand non-municipality results to `sources.common.place_problem()`, so
+   ambiguous, foreign and unknown places behave like everywhere else.
+2. Fetch only through `http.fetch()`/`fetch_json()` with a TTL that matches how often the source
+   changes; pass `check_robots=False` only for documented APIs.
+3. Cite every fact: publisher, `level`, `jurisdiction`, `retrieved_at`/`valid_for`, and a verbatim
+   `excerpt` where there is one. Use `status` honestly (`not_covered` rather than a guess).
+4. Register it in `server.py` with `@tool("Title")` and a short docstring. Parameter descriptions are
+   sent on every connection, so keep them brief; `test_tool_list_is_compact_and_read_only` caps the size.
+5. Add a row to `coverage.py` and to the coverage table above, an offline test in `tests/`, and a
+   live check in `tests/test_live.py` (the daily workflow then watches it).
 
 ## Testing
 
 ```sh
-uv run pytest -q              # offline: MCP contract, place resolution, premiums, honesty rules
+uv run pytest -q              # offline: contract, places, premiums, honesty, redirects, stale copies, HTTP guards
+uv run --extra semantic pytest -q                      # the same, plus the real embedding model
+uv run --extra semantic python scripts/search_eval.py  # search quality, keyword vs hybrid
 uv run pytest -q -m live      # live checks against every real source
 uv run ruff check src scripts tests
 npx -y -p node@22 -p @modelcontextprotocol/inspector -- mcp-inspector --cli http://127.0.0.1:8000/mcp -- --method tools/list
@@ -223,7 +386,41 @@ OPENAI_API_KEY=... uv run python scripts/e2e_eval.py    # Claude Code (sonnet, h
 It runs `eval/questions.json` — the 5 published sample questions plus 11 more (de/fr/it/rm/en,
 including ask-back, out-of-scope and not-covered cases) — and writes `eval/results/<date>.md`.
 
-### Latest end-to-end results (2026-09-25, `eval/results/2026-09-25T0159.md`)
+### Latest end-to-end results (2026-09-25, `eval/results/2026-09-25T0606.md`, hybrid search)
+
+All four runs of the evaluation setup (2 clients x 2 LLMs), scored with the current checks:
+
+| Client + LLM | Pass | Avg tool calls | Avg seconds | First run (`…T0159`) |
+|---|---|---|---|---|
+| Claude Code + Sonnet | 15/16 | 1.0 | 13 | 14/16 |
+| Claude Code + Haiku | 13/16 | 0.9 | 12 | 14/16 |
+| OpenCode + gpt-5.4-mini | 15/16 | 1.4 | 9 | 13/16 |
+| OpenCode + gpt-4.1-mini | 14/16 | 1.0 | 8 | 13/16 |
+
+Checks: asking back may be a polite request as well as a question; Q12 accepts ch.ch's customs pages,
+which state the CHF 5 rule word for word; Q15 ("capital of Australia") follows the challenge text for a
+question not about Switzerland: the right response is to say so, without calling the Swiss server.
+
+Remaining misses, honestly reported:
+
+- **Q15 (all four):** the models answer "Canberra" from general knowledge. This run was recorded when
+  the server instructions only said not to call its tools for such questions; they now also say to state
+  that the question is outside this Swiss service. Rerun with Claude after that change: both still answer
+  from general knowledge without calling any tool, so the server never sees the question. The
+  challenge's own non-Swiss sample (S5, a fee after moving to Konstanz) passes in all four, because
+  there the model does ask the server and gets `not_covered`.
+- **Q12 (Haiku, gpt-4.1-mini):** the parcel-VAT question. The CHF 5 parcel rule is in the tool's
+  results, but these models apply a neighbouring rule (the travellers' CHF 150 allowance, or "import tax
+  on every parcel"). The larger models answer it correctly.
+- **Q7 (Haiku):** correct answer, cited from a search result instead of the law text on Fedlex.
+
+Runs are not deterministic: the same model can pass or miss a question between runs (Haiku passed Q7
+and Q12 in `…T0552`).
+
+Q17 (French question about registering in Bern, testing the language hint) was added after this run:
+Sonnet passed it by searching again in German; Haiku passed 1 of 4 runs.
+
+### Earlier end-to-end results (2026-09-25, `eval/results/2026-09-25T0159.md`)
 
 | Client + LLM | Pass (content + citation) | Content correct | Published samples | Avg tool calls | Avg seconds |
 |---|---|---|---|---|---|
@@ -235,8 +432,9 @@ including ask-back, out-of-scope and not-covered cases) — and writes `eval/res
 Remaining misses, honestly reported: some answers are correct but name the source without the URL
 (Q8, one S3 run); two answers to the parcel-VAT question (Q12) reach the right conclusion with the
 travellers' allowance instead of the CHF 5 parcel rule; and a general non-Swiss question (Q15,
-"capital of Australia") is answered from model knowledge without calling any tool — a server cannot
-intercept questions it is never asked (the published non-Swiss sample S5, Konstanz, passes in all four).
+"capital of Australia") is answered from model knowledge without calling any tool, which the check at
+the time counted as a miss (it now counts as correct, see above; the published non-Swiss sample S5,
+Konstanz, passes in all four).
 
 
 ## License

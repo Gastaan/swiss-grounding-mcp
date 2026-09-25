@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import io
 import re
@@ -26,7 +27,7 @@ async def reference_interest_rate(language: str = "de") -> ToolResult:
         html = await http.fetch(url, ttl=6 * http.HOUR)
     except http.FetchError as e:
         return source_error("The BWO page", e, [cite])
-    text = trafilatura.extract(html, output_format="txt") or ""
+    text = await asyncio.to_thread(trafilatura.extract, html, output_format="txt") or ""
     rate = re.search(r"Aktueller Referenzzinssatz:\s*([\d,\.]+)\s*%", text)
     since = re.search(r"gültig seit\s*(\d{2}\.\d{2}\.\d{4})", text)
     later = re.findall(r"\d{2}\.\d{2}\.\d{4}", text[since.end():]) if since else []

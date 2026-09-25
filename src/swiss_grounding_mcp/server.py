@@ -3,24 +3,29 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import logging
 import os
 import sys
+import threading
 import time
 from functools import wraps
 from typing import Annotated, Literal
 
+import uvicorn
 from fastmcp import FastMCP
 from fastmcp.tools import ToolResult as MCPResult
 from mcp.types import TextContent
 from pydantic import Field
+from starlette.middleware import Middleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from . import models
+from . import http, models, semantic
 from .config import VERSION, settings
 from .coverage import coverage_report
+from .guards import BearerAuth, RateLimit
 from .places import register, resolve
 from .sources import companies, economy, fedlex, holidays, premiums, search, transport, votes, waste, weather
 from .sources.common import place_problem
@@ -29,13 +34,23 @@ log = logging.getLogger("swiss_grounding_mcp")
 
 INSTRUCTIONS = """\
 Swiss Grounding: authoritative, cited answers about Switzerland from official Swiss sources
-(federal, cantonal, municipal and bodies with a legal mandate). Every result has a `status`,
-a `summary`, `citations` (URL, publisher, level, jurisdiction, date) and `guidance`.
+(federal, cantonal, municipal and bodies with a legal mandate).
 
-Scope first: this is a Swiss information service. If a question is not about Switzerland (a foreign
-place such as Konstanz, or a general topic unrelated to Switzerland), say clearly that it is outside the
-scope of Swiss official information instead of answering from memory. Never answer Swiss questions from
-memory when a tool can ground them.
+Scope: Switzerland only. Questions that are not about Switzerland (e.g. another country's capital) are
+outside this server: do not call its tools for them, and say clearly that they are outside what this Swiss
+information service covers instead of guessing. When a question applies Swiss-style rules to a place
+outside Switzerland (e.g. a licence fee after moving to Konstanz), say clearly that Swiss rules and sources
+do not apply there. Never answer Swiss questions from memory when a tool can ground them.
+
+Every tool returns one JSON object:
+- status: ok | needs_context | not_covered | not_found | source_error
+- summary: one factual sentence ending with "Source: <publisher> – <url>"
+- data: tool-specific facts
+- citations[]: {title, url, publisher, level, jurisdiction, retrieved_at, valid_for, excerpt};
+  level is federal | cantonal | municipal | semi-official | community; jurisdiction is CH, CH-<canton>
+  or CH-<canton>-<BFS municipality number>; excerpt is verbatim source text
+- missing_context[]: {field, question, options}
+- guidance: what to do next
 
 How to use:
 - Pick the specific tool first (premiums, law, holidays, waste, transport, votes, rates, companies,
@@ -45,16 +60,19 @@ How to use:
 - status=needs_context: ask the user exactly the question in `summary`, nothing more.
   status=not_covered / not_found: say clearly that it is not covered; do not guess.
   status=source_error: say the official source is unavailable and give the citation link.
-- Answer in the user's language, cite the URLs, and state the reference year or date.
+- Answer in the user's language, state the reference year or date, and always write out the source
+  URL (not only the publisher's name).
 """
 
 mcp = FastMCP("swiss-grounding", instructions=INSTRUCTIONS, version=VERSION,
               website_url="https://github.com/Gastaan/swiss-grounding-mcp")
 
 READ_ONLY = {"readOnlyHint": True, "openWorldHint": True, "idempotentHint": True, "destructiveHint": False}
-# Compact form of models.ToolResult's schema: it is repeated for every tool in tools/list, so field
-# descriptions live in INSTRUCTIONS instead (a test checks both stay in sync).
+# Compact form of models.ToolResult's schema. It is repeated for every tool in tools/list (and so in the
+# model's context on every connection), so the fields inside citations and missing_context are described
+# once in INSTRUCTIONS instead; a test checks that both stay in sync with models.py.
 _STR = {"type": "string"}
+_OBJECTS = {"type": "array", "items": {"type": "object"}}
 OUTPUT_SCHEMA = {
     "type": "object",
     "required": ["status", "summary"],
@@ -62,19 +80,15 @@ OUTPUT_SCHEMA = {
         "status": {"enum": ["ok", "needs_context", "not_covered", "not_found", "source_error"]},
         "summary": _STR,
         "data": {"type": "object"},
-        "citations": {"type": "array", "items": {
-            "type": "object", "required": ["title", "url", "publisher", "level", "jurisdiction"],
-            "properties": {k: _STR for k in ("title", "url", "publisher", "level", "jurisdiction",
-                                              "retrieved_at", "valid_for", "excerpt")}}},
-        "missing_context": {"type": "array", "items": {
-            "type": "object", "required": ["field", "question"],
-            "properties": {"field": _STR, "question": _STR, "options": {"type": "array", "items": _STR}}}},
+        "citations": _OBJECTS,
+        "missing_context": _OBJECTS,
         "guidance": _STR,
     },
 }
+CITE_URL = "Write out the source URL in the answer, not only the publisher's name."
 
-Place = Annotated[str | None, Field(description="Municipality, postcode, address or canton as the user said it, "
-                                                 "in any language (e.g. 'Lugano', '8003', 'Genf', 'Bahnhofstrasse 1, Zürich').")]
+Place = Annotated[str | None, Field(description="Place as the user said it: municipality, postcode, address or "
+                                                 "canton, any language (e.g. 'Genf', '8003').")]
 Lang = Annotated[Literal["de", "fr", "it", "rm", "en"], Field(description="Language of the user's question.")]
 
 
@@ -82,6 +96,9 @@ def respond(result: models.ToolResult) -> MCPResult:
     if result.citations and "Source:" not in result.summary:
         c = result.citations[0]  # models echo the summary, so carry the main source in it
         result = result.model_copy(update={"summary": f"{result.summary} Source: {c.publisher} – {c.url}"})
+    if result.status == "ok" and result.citations:
+        result = result.model_copy(update={"guidance": f"{result.guidance} {CITE_URL}" if result.guidance
+                                           else CITE_URL})
     data = result.model_dump(exclude_none=True)
     for key in ("citations", "missing_context"):
         if not data.get(key):
@@ -90,20 +107,53 @@ def respond(result: models.ToolResult) -> MCPResult:
     return MCPResult(content=[TextContent(type="text", text=text)], structured_content=data)
 
 
+STARTED = time.time()
+_tool_stats: dict[str, dict] = {}
+
+
+def _record(name: str, status: str, ms: float, size: int) -> None:
+    s = _tool_stats.setdefault(name, {"calls": 0, "total_ms": 0.0, "max_ms": 0.0, "total_bytes": 0, "status": {}})
+    s["calls"] += 1
+    s["total_ms"] += ms
+    s["max_ms"] = max(s["max_ms"], ms)
+    s["total_bytes"] += size
+    s["status"][status] = s["status"].get(status, 0) + 1
+
+
+def _mark_stale(result: models.ToolResult, stale: list[dict]) -> models.ToolResult:
+    """The live source was down and an older cached copy was used: say so in the result."""
+    oldest = min(s["retrieved_at"] for s in stale)
+    note = (f"The live source was unreachable, so this uses the copy retrieved on {oldest}. "
+            "Tell the user the data may be out of date and give that date. ")
+    return result.model_copy(update={"data": {**(result.data or {}), "stale_sources": stale},
+                                     "guidance": note + (result.guidance or "")})
+
+
 def tool(title: str):
-    """Register a read-only tool with shared logging, output schema and error containment."""
+    """Register a read-only tool with shared logging, output schema, a time limit and error containment."""
     def deco(fn):
         @wraps(fn)
         async def wrapper(*args, **kwargs):
             started = time.monotonic()
+            stale = http.track_stale()
             try:
-                result = await fn(*args, **kwargs)
+                async with asyncio.timeout(settings.tool_timeout_s):
+                    result = await fn(*args, **kwargs)
+            except TimeoutError:  # several slow upstream calls in a row must not hang the client
+                log.warning("tool %s exceeded %gs", fn.__name__, settings.tool_timeout_s)
+                result = models.source_error(f"The '{fn.__name__}' tool",
+                                             f"no answer from the official source within {settings.tool_timeout_s:g} s")
             except Exception as e:  # never leak a stack trace to the model; say what failed
                 log.exception("tool %s failed", fn.__name__)
                 result = models.source_error(f"The '{fn.__name__}' tool", type(e).__name__)
+            if stale and result.status == "ok":
+                result = _mark_stale(result, stale)
             out = respond(result)
-            log.info("tool=%s status=%s bytes=%d ms=%d", fn.__name__, result.status,
-                     len(out.content[0].text), (time.monotonic() - started) * 1000)
+            ms = (time.monotonic() - started) * 1000
+            size = len(out.content[0].text)
+            _record(fn.__name__, result.status, ms, size)
+            log.info("tool=%s status=%s bytes=%d ms=%d%s", fn.__name__, result.status, size, ms,
+                     " stale" if stale else "")
             return out
         return mcp.tool(title=title, annotations=READ_ONLY, output_schema=OUTPUT_SCHEMA)(wrapper)
     return deco
@@ -171,7 +221,7 @@ async def swiss_place_info(place: Place = None) -> models.ToolResult:
 
 @tool("Search official Swiss information")
 async def search_official_info(
-    query: Annotated[str, Field(description="Key words of the question, ideally in the language of the "
+    query: Annotated[str, Field(description="Key words of the question, best in the language of the "
                                             "source (e.g. 'permis de conduire étranger échanger').")],
     place: Place = None,
     language: Lang | None = None,
@@ -311,26 +361,72 @@ async def current_weather(place: Place = None, language: Lang = "de") -> models.
 @mcp.custom_route("/health", methods=["GET"])
 async def health(_: Request) -> JSONResponse:
     meta = search.index_meta()
+    sources = http.stats()
     return JSONResponse({
         "status": "ok", "version": VERSION, "respect_robots": settings.respect_robots,
         "index_built": meta.get("built"), "index_pages": meta.get("pages"),
         "places_built": register()["meta"]["built"], "premium_years": premiums.available_years(),
+        "search": semantic.status(), "sources_with_errors": sorted(h for h, s in sources.items() if s["errors"]),
     })
+
+
+@mcp.custom_route("/metrics", methods=["GET"])
+async def metrics(_: Request) -> JSONResponse:
+    """Counters since start: per tool (calls, statuses, latency, response size) and per upstream host
+    (requests, cache hits, errors, stale copies served, last error)."""
+    tools = {name: {"calls": s["calls"], "status": s["status"], "avg_ms": round(s["total_ms"] / s["calls"]),
+                    "max_ms": round(s["max_ms"]), "avg_bytes": round(s["total_bytes"] / s["calls"])}
+             for name, s in sorted(_tool_stats.items())}
+    return JSONResponse({"version": VERSION, "uptime_s": round(time.time() - STARTED), "tools": tools,
+                         "sources": http.stats()})
+
+
+def http_app():
+    """The Streamable HTTP app with its guards: Origin check (FastMCP), rate limit and optional token."""
+    middleware = []
+    if settings.rate_limit > 0:
+        middleware.append(Middleware(RateLimit, per_minute=settings.rate_limit))
+    if settings.auth_token:
+        middleware.append(Middleware(BearerAuth, token=settings.auth_token))
+    # FastMCP's Host/Origin guard is off unless asked for. "auto" checks Host on localhost binds, and the
+    # explicit origin list makes it check Origin on every interface: browser pages from other origins are
+    # refused (DNS rebinding); MCP clients send no Origin header and are unaffected.
+    return mcp.http_app(path="/mcp", stateless_http=True, middleware=middleware,
+                        host_origin_protection="auto", allowed_origins=list(settings.allowed_origins))
+
+
+def warm() -> None:
+    """Load the shipped data before the first request, so no tool call pays for it; prune the cache."""
+    started = time.monotonic()
+    register()
+    search.index_meta()  # unpacks the index on first start
+    for year in premiums.available_years():
+        premiums._table(year)
+    # hybrid search if the extra is installed; loaded in the background because the first start downloads
+    # the model (~240 MB) and MCP clients time out on a slow handshake (OpenCode: 5 s by default)
+    semantic.load_in_background()
+    threading.Thread(target=lambda: log.info("cache pruned: %d removed, %d bytes kept", *http.prune_cache()),
+                     daemon=True).start()
+    log.info("data loaded in %d ms", (time.monotonic() - started) * 1000)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog="swiss-grounding-mcp", description=__doc__)
     parser.add_argument("--transport", choices=["stdio", "http"], default=os.getenv("SGM_TRANSPORT", "stdio"))
-    parser.add_argument("--host", default=os.getenv("HOST", "0.0.0.0"))
+    # localhost unless asked otherwise: the Docker image sets HOST=0.0.0.0 explicitly
+    parser.add_argument("--host", default=os.getenv("HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "8000")))
     args = parser.parse_args()
     # logs go to stderr: stdout is the MCP channel in stdio mode
     logging.basicConfig(level=os.getenv("SGM_LOG_LEVEL", "INFO"), stream=sys.stderr,
                         format="%(asctime)s %(levelname)s %(name)s %(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
+    warm()
     if args.transport == "http":
-        mcp.run(transport="http", host=args.host, port=args.port, path="/mcp", stateless_http=True,
-                show_banner=False)
+        if args.host not in ("127.0.0.1", "localhost", "::1") and not settings.auth_token:
+            log.warning("listening on %s without SGM_AUTH_TOKEN: anyone who can reach this port can use it",
+                        args.host)
+        uvicorn.run(http_app(), host=args.host, port=args.port, log_level="warning")
     else:
         mcp.run(show_banner=False)
 

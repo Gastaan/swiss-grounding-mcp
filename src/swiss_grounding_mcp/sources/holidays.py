@@ -6,15 +6,48 @@ always cite the official reference (EDK list, municipality website) next to it.
 
 from __future__ import annotations
 
+import asyncio
+import re
 from datetime import date
 
 from .. import http
 from ..models import Citation, ToolResult, needs, source_error
 from ..places import canton_name, resolve
+from . import search
 
 API = "https://openholidaysapi.org"
 EDK = "https://www.edk.ch/de/bildungssystem/kantonale-schulorganisation/Schulferien/ferienlisten"
 LANG = {"de": "DE", "fr": "FR", "it": "IT", "en": "EN", "rm": "DE"}  # OpenHolidays has no Romansh
+
+
+async def _group_names(lang: str) -> dict[str, str]:
+    """School types by code (e.g. CH-BE-VS 'Volksschulen', CH-BE-EO 'Obligatorische Schulen', the
+    French-speaking schools of the Bernese Jura): periods can differ by school type within a canton."""
+    try:
+        groups = await http.fetch_json(f"{API}/Groups", params={"countryIsoCode": "CH", "languageIsoCode": lang},
+                                       ttl=30 * http.DAY, check_robots=False)
+    except http.FetchError:
+        return {}
+    return {g["code"]: _name(g, lang) for g in groups if g.get("code")}
+
+
+def _official_page(jurisdictions: list[str], year: int) -> Citation | None:
+    """The responsible authority's own holiday calendar page, if the index holds one (canton or municipality)."""
+    fts = ('"schulferi"* OR "ferienplan"* OR "ferienliste"* OR "vacances scolaires" OR "vacanze scolastiche" '
+           'OR "vacanzas"* OR "plan da scoula"')
+    try:
+        hits = search._run_search(fts, jurisdictions, None, 20)
+    except Exception:  # the index is optional evidence here; the holiday data still answers
+        return None
+    topical = re.compile(r"ferien|vacanc|vacanz|scoula", re.I)
+    hits = [h for h in hits if topical.search(h["url"] + " " + h["title"])]
+    if not hits:
+        return None
+    # the page for the requested school year first, then the most specific jurisdiction
+    best = max(hits, key=lambda h: (str(year) in h["url"] + h["title"], h["jurisdiction"].count("-")))
+    return Citation(title=best["title"], url=best["url"], publisher=best["publisher"], level=best["level"],
+                    jurisdiction=best["jurisdiction"], retrieved_at=best["retrieved_at"],
+                    excerpt=best["body"][:500], valid_for=str(year))
 
 
 def _name(entry: dict, lang: str) -> str:
@@ -53,20 +86,27 @@ async def holidays(
         return source_error("OpenHolidays", e)
 
     where = muni.name if muni else (canton_name(canton) if canton else "Switzerland")
+    groups = await _group_names(lang) if kind == "school" else {}
     items, seen = [], set()
     for e in entries:
         subs = [s.get("code") or "" for s in e.get("subdivisions", [])]
         # keep only the subdivision codes related to the requested place (itself, ancestors, children)
         rel = [s for s in subs if code and (s == code or code.startswith(s + "-") or s.startswith(code + "-"))]
-        key = (_name(e, lang), e["startDate"], e["endDate"])
+        school_type = ", ".join(groups.get(g.get("code", ""), g.get("code", "")) for g in e.get("groups") or [])
+        key = (_name(e, lang), e["startDate"], e["endDate"], school_type)
         if key in seen:
             continue
         seen.add(key)
         applies = "nationwide" if e.get("nationwide") else ", ".join(rel[:3]) + (" …" if len(rel) > 3 else "")
-        items.append({"name": key[0], "start": key[1], "end": key[2], "applies_to": applies or code})
+        item = {"name": key[0], "start": key[1], "end": key[2], "applies_to": applies or code}
+        if school_type:
+            item["school_type"] = school_type
+        items.append(item)
     names = [i["name"] for i in items]
     varies = sorted({n for n in names if names.count(n) > 1})
     jurisdiction = muni.jurisdiction if muni else (f"CH-{canton}" if canton else "CH")
+    local = [j for j in (muni.jurisdiction if muni else None, f"CH-{canton}" if canton else None) if j]
+    official = await asyncio.to_thread(_official_page, local, year) if kind == "school" and local else None
     citations = [
         Citation(title=f"OpenHolidays — {'school' if kind == 'school' else 'public'} holidays {year} ({code or 'CH'})",
                  url=f"{API}/{endpoint}?countryIsoCode=CH&subdivisionCode={code or ''}&validFrom={year}-01-01"
@@ -78,6 +118,8 @@ async def holidays(
         citations.append(Citation(title="EDK — official school holiday lists of all cantons", url=EDK,
                                   publisher="EDK (Swiss Conference of Cantonal Ministers of Education)",
                                   level="semi-official", jurisdiction="CH", valid_for=str(year)))
+    if official:  # the responsible authority's own calendar leads; the aggregated data supports it
+        citations.insert(0, official)
     if muni and muni.website:
         citations.append(Citation(title=f"Official website of {muni.name}", url=muni.website,
                                   publisher=f"Municipality of {muni.name}", level="municipal",
@@ -87,6 +129,14 @@ async def holidays(
                           citations=citations,
                           guidance="Point the user to the official list (EDK / municipality) instead of guessing.")
     guidance = "Give the dates for the requested period and cite the sources."
+    if official:
+        guidance += (f" The first citation is the responsible authority's own calendar ({official.publisher}); "
+                     "cite it, and check its excerpt or read_official_page(url) if the dates must be confirmed.")
+    types = {i.get("school_type") for i in items if i.get("school_type")}
+    if len(types) > 1:
+        guidance += (f" Dates differ by school type ({'; '.join(sorted(types))}), e.g. German- and French-speaking "
+                     "schools of the canton: give the dates for the type that applies to the user's municipality "
+                     "(its language region), or both, labelled.")
     if muni and not muni.holiday_code:
         guidance += (f" These are canton-level dates for {canton}; the school of {muni.name} may deviate — "
                      "recommend checking the municipality's school website.")

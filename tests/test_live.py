@@ -88,3 +88,17 @@ async def test_read_official_page(client):
 async def test_responses_stay_small(client, tool, args):
     r = await client.call_tool(tool, args)
     assert len(r.content[0].text) < 8000
+
+
+async def test_holidays_cite_the_responsible_authority_first(client):
+    """Challenge practice case 'enough_context': the canton's own 2026 calendar, not only an aggregator."""
+    r = await call(client, "swiss_holidays", place="Genève", year=2026, language="fr")
+    assert r["status"] == "ok" and "ge.ch/vacances-scolaires" in r["citations"][0]["url"]
+
+
+async def test_holidays_label_school_types(client):
+    """Canton Bern publishes different dates for German- and French-speaking schools."""
+    r = await call(client, "swiss_holidays", place="Stadt Bern", year=2026)
+    autumn = [h for h in r["data"]["holidays"] if h["name"] == "Herbstferien"]
+    assert len({h.get("school_type") for h in autumn}) == len(autumn) > 1
+    assert "bern.ch" in r["citations"][0]["url"]

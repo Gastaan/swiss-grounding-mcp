@@ -7,7 +7,7 @@ import pytest
 from swiss_grounding_mcp import models
 from swiss_grounding_mcp.authorities import classify
 from swiss_grounding_mcp.places import resolve
-from swiss_grounding_mcp.server import OUTPUT_SCHEMA
+from swiss_grounding_mcp.server import INSTRUCTIONS, OUTPUT_SCHEMA
 
 from .conftest import call
 
@@ -26,14 +26,18 @@ async def test_tool_list_is_compact_and_read_only(client):
         assert t.annotations.read_only_hint is True and t.annotations.destructive_hint is False
         assert t.output_schema["required"] == ["status", "summary"]
     size = sum(len(json.dumps(t.model_dump(exclude_none=True, by_alias=True))) for t in tools)
-    assert size < 26_000, f"tools/list grew to {size} chars"
+    assert size < 20_000, f"tools/list grew to {size} chars"  # 17.8k after the compact output schema (24.7k before)
 
 
 def test_output_schema_matches_model():
+    """The compact schema lists the top-level fields; the nested ones are documented once in INSTRUCTIONS."""
     model = models.ToolResult.model_json_schema()
     assert set(OUTPUT_SCHEMA["properties"]) == set(model["properties"])
-    assert set(OUTPUT_SCHEMA["properties"]["citations"]["items"]["properties"]) == set(
-        model["$defs"]["Citation"]["properties"])
+    for nested in ("Citation", "MissingContext"):
+        fields = ", ".join(model["$defs"][nested]["properties"])
+        assert "{" + fields + "}" in INSTRUCTIONS, f"INSTRUCTIONS must list {nested} fields: {fields}"
+    for level in models.Level.__args__:
+        assert level in INSTRUCTIONS
 
 
 @pytest.mark.parametrize(

@@ -1,0 +1,9 @@
+{
+  "_comment": "Reviewed corrections to the municipal websites taken from Wikidata. BFS number -> official URL, or null to drop a wrong one. Applied on load, before the automatic check in places.official_website(). Entries below were checked on 2026-09-25: each homepage title names the commune itself.",
+  "overrides": {
+    "3572": "https://www.falera.net",
+    "6022": "https://www.chamoson.net",
+    "6252": "https://www.anniviers.org",
+    "6267": "https://veysonnaz.org"
+  }
+}

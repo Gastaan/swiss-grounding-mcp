@@ -1,0 +1,37 @@
+name: live-sources
+# Calls every real source once a day. When one breaks (page layout changed, API moved, site down),
+# an issue is opened, or the open one updated, so the failure does not go unnoticed.
+on:
+  schedule:
+    - cron: "30 5 * * *" # daily 05:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - name: Live source checks
+        run: uv run pytest -q -m live -rf 2>&1 | tee live.log
+        shell: bash -o pipefail {0}
+      - name: Open or update the "source broken" issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body=$(printf 'The daily live check failed (run %s).\n\n```\n%s\n```\n' \
+            "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            "$(grep -E '^(FAILED|ERROR)' live.log | head -30)")
+          gh label create source-broken --color B60205 --description "A live official source check failed" 2>/dev/null || true
+          open=$(gh issue list --label source-broken --state open --json number --jq '.[0].number')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body "$body"
+          else
+            gh issue create --title "Live source check failing" --label source-broken --body "$body"
+          fi

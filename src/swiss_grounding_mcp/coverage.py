@@ -12,7 +12,7 @@ COVERAGE = [
     {"topic": "Procedures, rules, fees, deadlines (permits, moving, taxes, social insurance, driving licences, "
               "customs, schools, housing, voting, unemployment…)",
      "geography": "federal (ch.ch in de/fr/it/rm/en, federal offices) + 26 cantonal portals + 12 largest cities",
-     "source": "prebuilt full-text index of official pages + live page reading",
+     "source": "prebuilt index of official pages (keyword, or hybrid with the semantic extra) + live page reading",
      "tool": "search_official_info, read_official_page"},
     {"topic": "Federal law (current consolidated text, any article)", "geography": "federal",
      "source": "Fedlex", "tool": "swiss_federal_law"},

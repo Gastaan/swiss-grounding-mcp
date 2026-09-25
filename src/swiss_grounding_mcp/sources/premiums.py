@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import csv
 import gzip
 import json
@@ -77,7 +78,7 @@ async def premiums(
         )
     if age is None:
         return needs("age", "How old is the insured person?")
-    meta, rows = _table(year)
+    meta, rows = await asyncio.to_thread(_table, year)  # first call parses ~1 MB; keep the loop free
     res = await resolve(place)
     if res.kind == "canton" and res.canton:
         # premium regions depend on the municipality, except in single-region cantons
