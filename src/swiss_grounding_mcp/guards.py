@@ -10,7 +10,7 @@ import time
 from starlette.datastructures import Headers
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-OPEN_PATHS = ("/health",)  # liveness checks stay reachable without a token
+OPEN_PATHS = ("/", "/health")  # the landing page and liveness checks stay reachable without a token
 
 
 async def _reply(send: Send, status: int, message: str, extra: list[tuple[bytes, bytes]] = ()) -> None:

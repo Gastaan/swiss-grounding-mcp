@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.soheil1lotfi/swiss-grounding-mcp",
+  "title": "Swiss Grounding",
+  "description": "Cited answers about Switzerland from official federal, cantonal and municipal sources.",
+  "repository": {
+    "url": "https://github.com/Gastaan/swiss-grounding-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/Gastaan/swiss-grounding-mcp",
+  "version": "0.1.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://soheillotfi-swiss-grounding-mcp.hf.space/mcp"
+    }
+  ]
+}
