@@ -46,7 +46,10 @@ jobs:
       - name: Runs as an unprivileged user
         run: test "$(docker exec sgm id -u)" != "0"
       - name: Serves hybrid search with the model baked in
-        run: curl -sf localhost:8000/health | grep -q '"search":"hybrid'
+        # the model loads in the background after start ("loading"), so give it up to 30 s
+        run: |
+          for i in $(seq 1 30); do curl -sf localhost:8000/health | grep -q '"search":"hybrid' && exit 0; sleep 1; done
+          curl -s localhost:8000/health; exit 1
       - name: Answers MCP requests
         run: |
           curl -sf -X POST localhost:8000/mcp -H 'Content-Type: application/json' \
